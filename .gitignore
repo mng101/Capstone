@@ -1,0 +1,37 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+#db.sqlite3 - Add to the git repository
+media
+
+# Virtual Environment #
+__venv/
+
+# PyCharm files #
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.xml
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/gradle.xml
+.idea/**/libraries
+*.iws /out/
+
+# Python #
+*.py[cod]
+*$py.class
+/.idea/capstone.iml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/misc.xml
+/.idea/vcs.xml
+/.idea/watcherTasks.xml
+/.idea/modules.xml
+/.idea/other.xml

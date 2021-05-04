@@ -1,0 +1,22 @@
+{% extends 'challenge/base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block content %}
+
+   <h2>Markets Today</h2>
+    {% if index_list %}
+        <ul>
+            {% for index in index_list %}
+                <li>{{ index.fullExchangeName }} - {{ index.shortName }} - {{ index.regularMarketPreviousClose.raw }}</li>
+            {% endfor %}
+        </ul>
+{# TODO - Change layout to 3 columns x 5 rows #}
+    {% endif %}
+
+    <h2>News Headlines</h2>
+    <ul>
+{# TODO - Complete New Headlines section#}
+    </ul>
+
+{% endblock %}

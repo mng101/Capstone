@@ -1,0 +1,26 @@
+{% extends 'challenge/base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block content %}
+
+    <h1 style="text-align: center;"><span style="color: #33cccc;"><strong>Welcome to the </strong><span style="color: #000000;"><strong>Challenge </strong></span><strong>&nbsp;game site!</strong></span></h1>
+    <h3 style="text-align: center;"><span style="color: #008080;"><strong>Showcase your expertise in picking winning Stocks</strong></span></h3>
+    <div class="intro">
+        <p>This site is available to anybody that wants to fine tune their stock picking skills, without risking their hard earned tax dollars against the uncertainty of the financial markets. There is no money to be made, and no money to be lost. All you earn is the bragging rights to the notional profit you would have made executing the same trades in the <em>real Stock Market</em>.</p>
+        <p>Register, using the link in the Menu bar, and get started.</p>
+    </div>
+    <h3><span style="color: #33cccc;"><strong>The Rules:</strong></span></h3>
+    <div class="intro">
+        <ol>
+            <li>Registration is free. A Credit Card is NOT required</li>
+            <li>Upon registration, your account will have a notional credit of <u>CAD $250,000</u>&nbsp;that you can apply to the stock trades</li>
+            <li>Your portfolio can hold a maximum of 10 securities</li>
+            <li>Trades are filled internally at the mid point between the Bid and Ask quotes for the security being traded. Hence, trades can be executed all day, every day, with no dependency on the Trading hours of the Stock Market.</li>
+            <li>Please note, outside of the regular market hours, the posted Bid and Ask can be unrealistic, adversely impacting the value of your trades.</li>
+            <li>To avoid Portfolio churn, participants are limited to 10 trades in any 5 day interval. This limit is also required to confirm to the maximum number of requests permitted by the API service provider.</li>
+            <li>Users are permitted to create a maximum of 10 Watchlists, each holding 10 symbols. The Watchlists can be used to monitor the price movement of the Stock, before committing to a trade.</li>
+        </ol>
+    </div>
+
+{% endblock %}
