@@ -50,6 +50,21 @@
   bottom: 50px;
   padding: 70px 0;
   text-align: center;
-  background-color: #6495ed;
+  background-color: #77adcf;
   cursor: pointer;
+}
+
+.themed-container {
+  padding: .75rem;
+  margin-bottom: 1.5rem;
+  background-color: rgba(0, 123, 255, .15);
+  border: 1px solid rgba(0, 123, 255, .2);
+}
+
+.themed-grid-col {
+  padding-top: .50rem;
+  padding-bottom: .50rem;
+  text-align: center;
+  background-color: rgba(86, 61, 124, .15);
+  border: 1px solid rgba(86, 61, 124, .2);
 }
