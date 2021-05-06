@@ -6,40 +6,32 @@
 
    <h2>Markets Today</h2>
     {% if index_list %}
-        <table>
+        <table class="indices">
         {% for row in index_list %}
-{#            <div class="row-mb-3">#}
             <tr>
-            {% for item in row %}
-                <td>
-                <div class="themed-grid-col">
-                {{ item.fullExchangeName }} - {{ item.shortName }} - {{ item.regularMarketPreviousClose.raw|floatformat:'1' }}
-                </div>
-                </td>
-                {% comment %}<td>
-                    {{ item.fullExchangeName }} - {{ item.shortName }} - {{ item.regularMarketPreviousClose.raw|floatformat:'1' }}
-                </td>{% endcomment %}
-            {% endfor %}
+                {% for item in row %}
+                    <td>
+                    <div class="themed-grid-col">
+                        {{ item.fullExchangeName }} - {{ item.shortName }} - {{ item.regularMarketPreviousClose.raw|floatformat:'1' }}
+                    </div>
+                    </td>
+                {% endfor %}
             </tr>
-{#            </div>#}
         {% endfor %}
         </table>
     {% endif %}
 
-
- {% comment %}   {% if index_list %}
-
-        <ul>
-            {% for index in index_list %}
-                <li>{{ index.fullExchangeName }} - {{ index.shortName }} - {{ index.regularMarketPreviousClose.raw }}</li>
-            {% endfor %}
-        </ul>
-{# TODO - Change layout to 3 columns x 5 rows #}
-    {% endif %}{% endcomment %}
-
     <h2>News Headlines</h2>
-    <ul>
-{# TODO - Complete New Headlines section#}
-    </ul>
+
+    {% if news_headlines %}
+        <ul>
+        {% for item in news_headlines %}
+            <ul>
+                <li>{{ item.content.title }}</li>
+            </ul>
+        {% endfor %}
+        </ul>
+
+    {% endif %}
 
 {% endblock %}

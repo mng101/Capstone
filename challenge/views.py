@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.template import Library
+# from django.template import Library
 
 from django.views.generic.base import TemplateView
 from django.contrib import messages
@@ -20,7 +20,7 @@ from . import forms
 # Define the interval during which repeated API calls for market data are to be avoided
 #
 MARKET_DATA_REFRESH_INTERVAL = 3600
-register = Library()
+# register = Library()
 
 
 class HomePageView(TemplateView):
@@ -28,7 +28,7 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        messages.info(self.request, "hello http://example.com")
+        # messages.info(self.request, "hello http://example.com")
         return context
 
 
@@ -46,26 +46,81 @@ class ThanksPageView(TemplateView):
     template_name = 'challenge/thanks.html'
 
 
+# def get_market_summary(request):
+#     #
+#     # Get Market Indices for Canada - Original
+#     #
+#     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary"
+#
+#     querystring = {"region": "CA"}
+#
+#     headers = {
+#         'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+#         'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
+#     }
+#
+#     response = requests.request("GET", url, headers=headers, params=querystring)
+#     if response.status_code == 200:
+#         # Deserialize the response to a python object
+#         json_data = json.loads(response.text)
+#         return json_data['marketSummaryAndSparkResponse']
+#     else:
+#         return None
+
+
 def get_market_summary(request):
     #
-    # Get Market Indices for Canada
+    # Get Market Indices for Canada - Updated logic
     #
-    url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary"
 
-    querystring = {"region": "CA"}
+    # TODO - Revert back to the original logic after testing
+    #      - This update also saves the deserialized response in the User session
 
-    headers = {
-        'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
-        'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
-    }
+    if "market_summary" not in request.session:
+        request.session["market_summary"] = []
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
-    if response.status_code == 200:
-        # Deserialize the response to a python object
-        json_data = json.loads(response.text)
-        return json_data
-    else:
-        return None
+        url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary"
+        querystring = {"region": "CA"}
+        headers = {
+            'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
+        }
+
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+        if response.status_code == 200:
+            # Deserialize the response to a python object
+            json_data = json.loads(response.text)
+            request.session["market_summary"].append(json_data)
+        else:
+            request.session["market_summary"] = None
+
+    return request.session["market_summary"][0]["marketSummaryAndSparkResponse"]
+
+
+# def get_news_headlines(request):
+#     #
+#     # Get the News Headlines for Canada
+#     #
+#     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/list"
+#
+#     querystring = {"region": "CA", "snippetCount": "10"}
+#
+#     payload = "Pass in the value of uuids field returned right in this endpoint to load the next page, or leave empty " \
+#               "to load first page "
+#     headers = {
+#         'content-type': "text/plain",
+#         'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+#         'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
+#     }
+#
+#     response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+#     if response.status_code == 200:
+#         # Deserialize the response to a python object
+#         json_data = json.loads(response.text)
+#         return json_data
+#     else:
+#         return None
 
 
 # def split_into_columns(indices, n):
@@ -85,6 +140,37 @@ def get_market_summary(request):
 #
 #     return [items[split * i:split * (i + 1):split * (i + 2)] for i in range(n)]
 
+def get_news_headlines(request):
+    #
+    # Get the News Headlines for Canada - Updated Logic
+    #
+
+    # TODO - Revert back to the original logic after testing
+    #      - This update also saves the deserialized response in the User session
+
+    if "market_news" not in request.session:
+        request.session["market_news"] = []
+
+        url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/list"
+        querystring = {"region": "CA", "snippetCount": "10"}
+        payload = "Pass in the value of uuids field returned right in this endpoint to load the next page, or leave empty " \
+                  "to load first page "
+        headers = {
+            'content-type': "text/plain",
+            'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+            'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
+        }
+
+        response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+
+        if response.status_code == 200:
+            # Deserialize the response to a python object
+            json_data = json.loads(response.text)
+            request.session["market_news"].append(json_data)
+        else:
+            request.session["market_news"] = None
+
+        return request.session["market_news"][0]
 
 def refresh_market_summary(request):
     #
@@ -93,9 +179,8 @@ def refresh_market_summary(request):
     #
     # The timestamp for the last API call is also saved in the User session, and is used to determine
     # when the Market data is to be refreshed
-    #
-
     # If this is a new User sesssion, create entry for "indices" and initialize the timestamp
+
     if "indices" not in request.session:
         request.session["indices"] = []
         request.session["indices"].append({"timestamp": 0})
@@ -104,10 +189,29 @@ def refresh_market_summary(request):
 
     # If we are past the refresh interval, refresh the data and update the timestamp
     if (now - request.session["indices"][0]["timestamp"]) > MARKET_DATA_REFRESH_INTERVAL:
-        request.session['indices'].append(get_market_summary(request)['marketSummaryAndSparkResponse'])
+        request.session['indices'].append(get_market_summary(request))
         request.session["indices"][0]["timestamp"] = now
 
+    # Split the array returned into 3 colums and 5 rows
     return numpy.array_split(request.session['indices'][1]["result"], 5)
+#
+# Original code copied below
+#    return numpy.array_split(request.session['indices'][1]["result"], 5)
+
+
+def refresh_news_headlines(request):
+    if "news_headlines" not in request.session:
+        request.session["news_headlines"] = []
+        request.session["news_headlines"].append({"timestamp": 0})
+
+    now = timezone.now().timestamp()
+
+    # If we are past the refresh interval, refresh the data and update the timestamp
+    if (now - request.session["news_headlines"][0]["timestamp"]) > MARKET_DATA_REFRESH_INTERVAL:
+        request.session['news_headlines'].append(get_news_headlines(request))
+        request.session["news_headlines"][0]["timestamp"] = now
+
+    return request.session["news_headlines"][1]["data"]["main"]["stream"]
 
 
 class MarketsPageView(TemplateView):
@@ -118,6 +222,9 @@ class MarketsPageView(TemplateView):
 
         # Add list of market indices and values
         context["index_list"] = refresh_market_summary(self.request)
+
+        # Add News Headlines to the context
+        context["news_headlines"] = refresh_news_headlines(self.request)
 
         return context
 
