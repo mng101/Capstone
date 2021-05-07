@@ -12,8 +12,8 @@ import json
 import numpy
 
 from . import forms
-
-# from .models import Account
+from .models import Account
+from .forms import AccountForm
 
 # Create your views here.
 
@@ -230,5 +230,7 @@ class MarketsPageView(TemplateView):
 
 # TODO - Compete the AccountUpdateView
 #
-# class AccountUpdateView(UpdateView):
-#     model = Account
+class AccountUpdateView(UpdateView):
+    model = Account
+    form_class = AccountForm
+    success_url = reverse_lazy("home")

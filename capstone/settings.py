@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'challenge.apps.ChallengeConfig',
     'bootstrap5',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [

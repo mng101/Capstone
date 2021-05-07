@@ -4,15 +4,16 @@
 
 {% block content %}
 
-   <h2>Markets Today</h2>
+   <h4>Markets Today</h4>
     {% if index_list %}
-        <table class="indices">
+        <table>
+        {# TODO - Adjust table width to 100% of the window        #}
         {% for row in index_list %}
             <tr>
                 {% for item in row %}
                     <td>
                     <div class="themed-grid-col">
-                        {{ item.fullExchangeName }} - {{ item.shortName }} - {{ item.regularMarketPreviousClose.raw|floatformat:'1' }}
+                        {{ item.fullExchangeName }} - {{ item.shortName }} - <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b>
                     </div>
                     </td>
                 {% endfor %}
@@ -21,16 +22,18 @@
         </table>
     {% endif %}
 
-    <h2>News Headlines</h2>
+    <br>
+
+    <h4>News Headlines</h4>
 
     {% if news_headlines %}
-        <ul>
-        {% for item in news_headlines %}
-            <ul>
-                <li>{{ item.content.title }}</li>
-            </ul>
-        {% endfor %}
-        </ul>
+        <table class="table">
+            {% for item in news_headlines %}
+                <tr>
+                    <td>{{ item.content.title }}</td>
+                </tr>
+            {% endfor %}
+        </table>
 
     {% endif %}
 

@@ -16,7 +16,24 @@ class UserCreateForm(UserCreationForm):
         self.fields["email"].label = "Email address"
 
 
-# class AccountForm(ModelForm):
-#     class Meta:
-#         model = Account
-#         fields = ('first_name', 'middle_name', 'last_name',)
+class AccountForm(ModelForm):
+
+    class Meta:
+        model = Account
+        fields = ['first_name', 'middle_name', 'last_name', 'address1', 'address2', 'city',
+                  'province', 'postal_code']
+
+        labels = {
+            "user": "Your Login",
+            "first_name": "First Name",
+            "middle_name": "Middle Name",
+            "last_name": "Last Name",
+        }
+        # widgets = {
+        #     'user': setattr(
+        # }
+
+        def clean_first_name(self):
+            cleaned_data = self.cleaned_data.get('first_name')
+            account.save()
+            return cleaned_data
