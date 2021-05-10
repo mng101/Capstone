@@ -19,7 +19,7 @@ from .forms import AccountForm
 
 # Define the interval during which repeated API calls for market data are to be avoided
 #
-MARKET_DATA_REFRESH_INTERVAL = 3600
+MARKET_DATA_REFRESH_INTERVAL = 15
 # register = Library()
 
 
@@ -95,7 +95,10 @@ def get_market_summary(request):
         else:
             request.session["market_summary"] = None
 
-    return request.session["market_summary"][0]["marketSummaryAndSparkResponse"]
+   # Original code commented out
+   # return request.session["market_summary"][0]["marketSummaryAndSparkResponse"]
+
+    return request.session["market_summary"][0]
 
 
 # def get_news_headlines(request):
@@ -180,20 +183,27 @@ def refresh_market_summary(request):
     # The timestamp for the last API call is also saved in the User session, and is used to determine
     # when the Market data is to be refreshed
     # If this is a new User sesssion, create entry for "indices" and initialize the timestamp
-
     if "indices" not in request.session:
         request.session["indices"] = []
         request.session["indices"].append({"timestamp": 0})
 
     now = timezone.now().timestamp()
 
-    # If we are past the refresh interval, refresh the data and update the timestamp
+    # If we are past the refresh interval, get updated data and update the timestamp
     if (now - request.session["indices"][0]["timestamp"]) > MARKET_DATA_REFRESH_INTERVAL:
+        # Delete stale data previously saved in the session
+        if request.session["indices"][1]:
+            print("deleting stale data")
+            request.session["indices"].pop(1)
+        # Append refreshed market data
         request.session['indices'].append(get_market_summary(request))
+        print("Refreshing Market Indices")
         request.session["indices"][0]["timestamp"] = now
 
     # Split the array returned into 3 colums and 5 rows
-    return numpy.array_split(request.session['indices'][1]["result"], 5)
+    return numpy.array_split(request.session['indices'][1]["marketSummaryAndSparkResponse"]["result"], 5)
+
+    # return numpy.array_split(request.session['indices'][1]["marketSummaryAndSparkResponse"]["result"], 5)
 #
 # Original code copied below
 #    return numpy.array_split(request.session['indices'][1]["result"], 5)
@@ -220,7 +230,7 @@ class MarketsPageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Add list of market indices and values
+        # Add market indices and values
         context["index_list"] = refresh_market_summary(self.request)
 
         # Add News Headlines to the context
