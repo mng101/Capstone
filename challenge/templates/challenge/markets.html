@@ -12,7 +12,7 @@
             <tr>
                 {% for item in row %}
                     <td>
-                    <div class="themed-grid-col">
+                    <div class="col themed-grid-col">
                         {{ item.fullExchangeName }} - {{ item.shortName }} - <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b>
                     </div>
                     </td>

@@ -1,0 +1,58 @@
+{% extends 'challenge/base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+
+    <p>Welcome back <b>{{ account.first_name }} {{ account.middle_name }} {{ account.last_name }}</b></p>
+
+    <div class="row row-cols-1 row-cols-md-4 gx-2">
+      <div class="col themed-grid-col">Cash Balance</div>
+      <div class="col themed-grid-col">Investments</div>
+      <div class="col themed-grid-col">Portfolio Total</div>
+      <div class="col themed-grid-col">Trades Last 5 Days</div>
+      <div class="col themed-grid-col">{{ account.cash }}</div>
+      <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
+      <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
+      <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
+    </div>
+
+    <br>
+
+    <h4>Portfolio</h4>
+
+    {% if holding_list %}
+        <table class="table">
+        <tr>
+            <th class="span1">Symbol</th>
+            <th class="span3">Company Name</th>
+            <th class="span1">Quantity</th>
+            <th class="span1">Avg Price</th>
+            <th class="span1">Cost</th>
+            <th class="span1">Market Price</th>
+            <th class="span1">Value</th>
+        </tr>
+
+        {% for item in holding_list %}
+            <tr>
+                <td>{{ item.stock_symbol }}</td>
+                <td>{{ item.company_name }}</td>
+                <td>{{ item.no_of_shares_owned }}</td>
+                <td>{{ item.average_cost }}</td>
+                <td>Cost</td>
+                <td>Market Price</td>
+                <td>Value</td>
+            </tr>
+
+        {% endfor %}
+
+        </table>
+    {% else %}
+        <h6>You have no holdings in your Portfolio</h6>
+    {% endif %}
+
+    </div>
+
+{% endblock %}

@@ -30,3 +30,22 @@ def create_user_account(sender, instance, created, **kwargs):
     if created:
         Account.objects.create(user=instance)
         print('Account created')
+
+
+#
+# TODO - Strictly speaking, the Holding model should not be required. It is possible to derive the list of
+#        holdings from the transactions. This will mean more coding and slower processing. Will leave this
+#        decision ot a later date.
+#        For a start, both the Transaction, and Holding models will be updated with relevant values for each
+#        Trade excuted
+#
+
+class Holding(models.Model):
+    user = models.ForeignKey("User", on_delete=models.CASCADE, related_name='holdings')
+    stock_symbol = models.CharField(max_length=6, null=False)
+    company_name = models.CharField(max_length=64)
+    no_of_shares_owned = models.IntegerField(default=0)
+    average_cost = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f"{self.stock_symbol} - {self.company_name} - {self.no_of_shares_owned} - {self.average_cost}"

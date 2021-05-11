@@ -12,7 +12,7 @@ import json
 import numpy
 
 from . import forms
-from .models import Account
+from .models import Account, Holding
 from .forms import AccountForm
 
 # Create your views here.
@@ -244,3 +244,20 @@ class AccountUpdateView(UpdateView):
     model = Account
     form_class = AccountForm
     success_url = reverse_lazy("home")
+
+
+class HoldingListView(ListView):
+    model = Holding
+    template_name = 'challenge/dashboard.html'
+
+    def get_queryset(self):
+        return Holding.objects.filter(user=self.request.user)
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add Account details to the context
+        context["account"] = Account.objects.get(user=self.request.user)
+
+        return context

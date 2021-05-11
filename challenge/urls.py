@@ -25,6 +25,7 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(template_name="challenge/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("markets/", views.MarketsPageView.as_view(), name="markets"),
+    path("dashboard/", views.HoldingListView.as_view(), name="dashboard"),
     path("test/", views.TestPageView.as_view(), name="test"),
     path("thanks/", views.ThanksPageView.as_view(), name="thanks"),
     path("contact/<int:pk>", views.AccountUpdateView.as_view(), name="contact"),
