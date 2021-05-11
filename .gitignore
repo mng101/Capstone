@@ -9,6 +9,12 @@ media
 # Virtual Environment #
 __venv/
 
+# Backup Directory
+/__ Backups/
+
+# RAPID API Keys saved in local_settings.py file
+local_settings.py
+
 # PyCharm files #
 .idea/**/workspace.xml
 .idea/**/tasks.xml

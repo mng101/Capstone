@@ -3,6 +3,9 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 # from django.template import Library
 
+# Import django settings to access the Rapid API Key
+from django.conf import settings
+
 from django.views.generic.base import TemplateView
 from django.contrib import messages
 from django.views.generic import (View, TemplateView, ListView, DetailView,
@@ -82,7 +85,8 @@ def get_market_summary(request):
         url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary"
         querystring = {"region": "CA"}
         headers = {
-            'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+            # 'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+            'x-rapidapi-key': settings.X_RAPIDAPI_KEY,
             'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
         }
 
@@ -160,7 +164,8 @@ def get_news_headlines(request):
                   "to load first page "
         headers = {
             'content-type': "text/plain",
-            'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+            # 'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+            'x-rapidapi-key': settings.X_RAPIDAPI_KEY,
             'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
         }
 
@@ -192,12 +197,15 @@ def refresh_market_summary(request):
     # If we are past the refresh interval, get updated data and update the timestamp
     if (now - request.session["indices"][0]["timestamp"]) > MARKET_DATA_REFRESH_INTERVAL:
         # Delete stale data previously saved in the session
-        if request.session["indices"][1]:
-            print("deleting stale data")
+        try:
             request.session["indices"].pop(1)
+            print("deleting stale data, if it exists")
+        except IndexError:
+            pass        # "indices" newly created. No stale data to delete
+
         # Append refreshed market data
-        request.session['indices'].append(get_market_summary(request))
         print("Refreshing Market Indices")
+        request.session['indices'].append(get_market_summary(request))
         request.session["indices"][0]["timestamp"] = now
 
     # Split the array returned into 3 colums and 5 rows
