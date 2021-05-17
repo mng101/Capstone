@@ -3,38 +3,51 @@
 {% load static %}
 
 {% block content %}
+    <div class="container">
 
-   <h4>Markets Today</h4>
-    {% if index_list %}
-        <table>
-        {# TODO - Adjust table width to 100% of the window        #}
-        {% for row in index_list %}
-            <tr>
-                {% for item in row %}
-                    <td>
-                    <div class="col themed-grid-col">
-                        {{ item.fullExchangeName }} - {{ item.shortName }} - <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b>
-                    </div>
-                    </td>
+       <h4>Markets Today</h4>
+        {% if index_list %}
+
+ {% comment %}           <table>
+                <div class="row row-cols-1 row-cols-md-4 gx-2">
+{#              TODO - Adjust table width to 100% of the window#}
+                    {% for row in index_list %}
+                        <tr>
+                            {% for item in row %}
+                                <td>
+                                <div class="col themed-grid-col">
+                                    {{ item.fullExchangeName }} - {{ item.shortName }} - <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b>
+                                </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </div>
+            </table>{% endcomment %}
+            <div class="row row-cols-1 row-cols-md-3 gx-2">
+                {% for item in index_list %}
+                    <div class="col themed-grid-col text-small">
+                        {{ item.fullExchangeName }} - {{ item.shortName }} -
+                        <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b></div>
                 {% endfor %}
-            </tr>
-        {% endfor %}
-        </table>
-    {% endif %}
+            </div>
+        {% endif %}
 
-    <br>
+        <br>
 
-    <h4>News Headlines</h4>
+        <h4>News Headlines</h4>
 
-    {% if news_headlines %}
-        <table class="table">
-            {% for item in news_headlines %}
-                <tr>
-                    <td>{{ item.content.title }}</td>
-                </tr>
-            {% endfor %}
-        </table>
+        {% if news_headlines %}
+            <table class="table">
+                {% for item in news_headlines %}
+                    <tr>
+                        <td>{{ item.content.title }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
 
-    {% endif %}
+        {% endif %}
+
+    </div>
 
 {% endblock %}

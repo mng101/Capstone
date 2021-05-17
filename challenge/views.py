@@ -15,15 +15,17 @@ import json
 import numpy
 
 from . import forms
-from .models import Account, Holding
+from .models import Account, Holding, Watchlist
 from .forms import AccountForm
-
-# Create your views here.
+from . import utils
 
 # Define the interval during which repeated API calls for market data are to be avoided
 #
 MARKET_DATA_REFRESH_INTERVAL = 15
+
 # register = Library()
+
+# Create your views here.
 
 
 class HomePageView(TemplateView):
@@ -51,14 +53,15 @@ class ThanksPageView(TemplateView):
 
 # def get_market_summary(request):
 #     #
-#     # Get Market Indices for Canada - Original
+#     # Get Market Summary for Canada - Original logic
+#     # The original code make an API call everytime the function is called.
+#     # Use the updated logic below during development to minimize external calls.
 #     #
 #     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary"
 #
 #     querystring = {"region": "CA"}
-#
 #     headers = {
-#         'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
+#         'x-rapidapi-key': settings.X_RAPIDAPI_KEY,
 #         'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
 #     }
 #
@@ -73,11 +76,13 @@ class ThanksPageView(TemplateView):
 
 def get_market_summary(request):
     #
-    # Get Market Indices for Canada - Updated logic
+    # Get Market Summary for Canada - Updated logic
+    # This is temporary logic to save the json response in the User session, and always return the
+    # cached data. This code is suitable for debugging the views without generating excessive number
+    # of API calls. The original logic above (commented out) should be used to activate live data
     #
 
     # TODO - Revert back to the original logic after testing
-    #      - This update also saves the deserialized response in the User session
 
     if "market_summary" not in request.session:
         request.session["market_summary"] = []
@@ -85,7 +90,6 @@ def get_market_summary(request):
         url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary"
         querystring = {"region": "CA"}
         headers = {
-            # 'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
             'x-rapidapi-key': settings.X_RAPIDAPI_KEY,
             'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
         }
@@ -99,10 +103,11 @@ def get_market_summary(request):
         else:
             request.session["market_summary"] = None
 
-   # Original code commented out
-   # return request.session["market_summary"][0]["marketSummaryAndSparkResponse"]
+    # Original code commented out
+    # TODO - Cleanup here
+    return request.session["market_summary"][0]["marketSummaryAndSparkResponse"]
 
-    return request.session["market_summary"][0]
+    # return request.session["market_summary"][0]
 
 
 # def get_news_headlines(request):
@@ -153,15 +158,14 @@ def get_news_headlines(request):
     #
 
     # TODO - Revert back to the original logic after testing
-    #      - This update also saves the deserialized response in the User session
 
     if "market_news" not in request.session:
         request.session["market_news"] = []
 
         url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/news/v2/list"
         querystring = {"region": "CA", "snippetCount": "10"}
-        payload = "Pass in the value of uuids field returned right in this endpoint to load the next page, or leave empty " \
-                  "to load first page "
+        payload = "Pass in the value of uuids field returned right in this endpoint to load the next page, or leave " \
+                  "empty to load first page "
         headers = {
             'content-type': "text/plain",
             # 'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
@@ -180,13 +184,16 @@ def get_news_headlines(request):
 
         return request.session["market_news"][0]
 
+
 def refresh_market_summary(request):
     #
     # The Market Summary is saved in the User session to avoid repeated API calls.
     # The Summary is refreshed at intervals defined by the value of MARKET_DATA_REFRESH_INTERVAL
+    # The MarketsPageView calls refresh_market_summary which in turn calls get_market_summary
     #
     # The timestamp for the last API call is also saved in the User session, and is used to determine
     # when the Market data is to be refreshed
+
     # If this is a new User sesssion, create entry for "indices" and initialize the timestamp
     if "indices" not in request.session:
         request.session["indices"] = []
@@ -201,7 +208,7 @@ def refresh_market_summary(request):
             request.session["indices"].pop(1)
             print("deleting stale data, if it exists")
         except IndexError:
-            pass        # "indices" newly created. No stale data to delete
+            pass  # "indices" newly created. No stale data to delete
 
         # Append refreshed market data
         print("Refreshing Market Indices")
@@ -209,15 +216,17 @@ def refresh_market_summary(request):
         request.session["indices"][0]["timestamp"] = now
 
     # Split the array returned into 3 colums and 5 rows
-    return numpy.array_split(request.session['indices'][1]["marketSummaryAndSparkResponse"]["result"], 5)
-
     # return numpy.array_split(request.session['indices'][1]["marketSummaryAndSparkResponse"]["result"], 5)
-#
-# Original code copied below
-#    return numpy.array_split(request.session['indices'][1]["result"], 5)
+    # Splitting the results into 3 columns is no longer required
+    #
+    # Original code copied below
+    # TODO - Cleanup here
+    # return numpy.array_split(request.session['indices'][1]["result"], 5)
+    return request.session['indices'][1]["result"]
 
 
 def refresh_news_headlines(request):
+
     if "news_headlines" not in request.session:
         request.session["news_headlines"] = []
         request.session["news_headlines"].append({"timestamp": 0})
@@ -246,8 +255,7 @@ class MarketsPageView(TemplateView):
 
         return context
 
-# TODO - Compete the AccountUpdateView
-#
+
 class AccountUpdateView(UpdateView):
     model = Account
     form_class = AccountForm
@@ -259,13 +267,28 @@ class HoldingListView(ListView):
     template_name = 'challenge/dashboard.html'
 
     def get_queryset(self):
-        return Holding.objects.filter(user=self.request.user)
+        s1 = Holding.objects.filter(user=self.request.user).values_list('stock_symbol', flat=True)
+        sym_list = ','.join(s1)
+        portfolio_quotes = utils.refresh_quotes(self.request, sym_list)
+
+        # portfolio_list = utils.enrich(self.request, Holding.objects.filter(user=self.request.user))
+        # return portfolio_list
+
+        list = [{'stock_symbol': x.stock_symbol, 'company_name': x.company_name,
+                'no_of_shares_owned': x.no_of_shares_owned, 'avg_price': (x.total_cost / x.no_of_shares_owned),
+                'total_cost': x.total_cost}
+               for x in Holding.objects.filter(user=self.request.user)]
+        return list
 
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         # Add Account details to the context
         context["account"] = Account.objects.get(user=self.request.user)
 
         return context
+
+
+class WatchlistView(ListView):
+    model = Watchlist
+    template_name = 'challenge/watchlist.html'

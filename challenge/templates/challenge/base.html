@@ -36,8 +36,9 @@
                 <li><a href="{% url 'markets' %}" class="nav-link px-2 link-dark">Markets Today</a></li>
                 {%  if user.is_authenticated %}
                     <li><a href="{% url 'dashboard' %}" class="nav-link px-2 link-dark">Dashboard</a></li>
-                    <li><a href="#" class="nav-link px-2 link-dark">Portfolio</a></li>
-                    <li><a href="#" class="nav-link px-2 link-dark">Watchlists</a></li>
+                    <li><a href="#" class="nav-link px-2 link-dark">Txn History</a></li>
+                    <li><a href="#" class="nav-link px-2 link-dark">Trading</a></li>
+                    <li><a href="{% url 'watchlist' 1 %}" class="nav-link px-2 link-dark">Watchlists</a></li>
                     <li><a href="{% url 'contact' user.id %}" class="nav-link px-2 link-dark">My Contact</a></li>
                 {% endif %}
 {#                <li><a href="#" class="nav-link px-2 link-dark">About</a></li>#}

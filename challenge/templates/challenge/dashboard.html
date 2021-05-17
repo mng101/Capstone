@@ -1,6 +1,7 @@
 {% extends 'challenge/base.html' %}
 {% load bootstrap5 %}
 {% load static %}
+{% load challenge_extras %}
 
 {% block content %}
 
@@ -13,7 +14,7 @@
       <div class="col themed-grid-col">Investments</div>
       <div class="col themed-grid-col">Portfolio Total</div>
       <div class="col themed-grid-col">Trades Last 5 Days</div>
-      <div class="col themed-grid-col">{{ account.cash }}</div>
+      <div class="col themed-grid-col">{{ account.cash|currency }}</div>
       <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
       <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
       <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
@@ -23,25 +24,25 @@
 
     <h4>Portfolio</h4>
 
-    {% if holding_list %}
+    {% if object_list %}
         <table class="table">
-        <tr>
-            <th class="span1">Symbol</th>
-            <th class="span3">Company Name</th>
-            <th class="span1">Quantity</th>
+        <tr class="text-small">
+            <th class="span3">Symbol<br>Company Name</th>
+{#            <th class="span3">Company Name</th>#}
+            <th class="col-sm-3half">Quantity</th>
             <th class="span1">Avg Price</th>
             <th class="span1">Cost</th>
             <th class="span1">Market Price</th>
             <th class="span1">Value</th>
         </tr>
 
-        {% for item in holding_list %}
+        {% for item in object_list %}
             <tr>
-                <td>{{ item.stock_symbol }}</td>
-                <td>{{ item.company_name }}</td>
+                <td>{{ item.stock_symbol }}<br>{{ item.company_name }}</td>
+{#                <td>{{ item.company_name }}</td>#}
                 <td>{{ item.no_of_shares_owned }}</td>
-                <td>TBD</td>
-                <td>{{ item.total_cost }}</td>
+                <td>{{ item.avg_price|currency }}</td>
+                <td>{{ item.total_cost|currency }}</td>
                 <td>Market Price</td>
                 <td>Value</td>
             </tr>

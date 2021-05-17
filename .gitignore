@@ -4,6 +4,7 @@
 *.pyc
 __pycache__
 #db.sqlite3 - Add to the git repository
+db.sqlite3-journal
 media
 
 # Virtual Environment #
