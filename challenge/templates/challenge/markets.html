@@ -26,7 +26,7 @@
             </table>{% endcomment %}
             <div class="row row-cols-1 row-cols-md-3 gx-2">
                 {% for item in index_list %}
-                    <div class="col themed-grid-col text-small">
+                    <div class="col themed-grid-col">
                         {{ item.fullExchangeName }} - {{ item.shortName }} -
                         <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b></div>
                 {% endfor %}

@@ -13,15 +13,18 @@ from django.views.generic import (View, TemplateView, ListView, DetailView,
 import requests
 import json
 import numpy
+import math
 
 from . import forms
 from .models import Account, Holding, Watchlist
 from .forms import AccountForm
 from . import utils
+from decimal import Decimal
 
 # Define the interval during which repeated API calls for market data are to be avoided
 #
 MARKET_DATA_REFRESH_INTERVAL = 15
+
 
 # register = Library()
 
@@ -118,8 +121,8 @@ def get_market_summary(request):
 #
 #     querystring = {"region": "CA", "snippetCount": "10"}
 #
-#     payload = "Pass in the value of uuids field returned right in this endpoint to load the next page, or leave empty " \
-#               "to load first page "
+#     payload = "Pass in the value of uuids field returned right in this endpoint to load the next" \
+#               " page, or leave empty to load first page "
 #     headers = {
 #         'content-type': "text/plain",
 #         'x-rapidapi-key': "438c096415mshb0589791ceeff23p107e84jsnd9ed933221e3",
@@ -226,7 +229,6 @@ def refresh_market_summary(request):
 
 
 def refresh_news_headlines(request):
-
     if "news_headlines" not in request.session:
         request.session["news_headlines"] = []
         request.session["news_headlines"].append({"timestamp": 0})
@@ -267,24 +269,57 @@ class HoldingListView(ListView):
     template_name = 'challenge/dashboard.html'
 
     def get_queryset(self):
+        # Get the list of symbols in the portfolio and format the list suitable for RapidAPI
         s1 = Holding.objects.filter(user=self.request.user).values_list('stock_symbol', flat=True)
         sym_list = ','.join(s1)
-        portfolio_quotes = utils.refresh_quotes(self.request, sym_list)
 
-        # portfolio_list = utils.enrich(self.request, Holding.objects.filter(user=self.request.user))
-        # return portfolio_list
+        # Get quotes for all the symbols in the portfolio. "refresh_quotes" will return values in
+        # session cache if the previous request was less than 1 hour ago
+        p_quotes = utils.refresh_quotes(self.request, sym_list)
 
-        list = [{'stock_symbol': x.stock_symbol, 'company_name': x.company_name,
-                'no_of_shares_owned': x.no_of_shares_owned, 'avg_price': (x.total_cost / x.no_of_shares_owned),
-                'total_cost': x.total_cost}
-               for x in Holding.objects.filter(user=self.request.user)]
-        return list
+        # Get a list of holdings and convert to a list of dictionaries
+        h_list = Holding.objects.filter(user=self.request.user).values()
 
+        # Combine holdings and quotes into a consolidated list
+        c_list = []
+        for index, value in enumerate(h_list):
+            x = h_list[index].copy()
+            # x.update(self.request.session['portfolio_quotes'][1]['result'][index])
+            x.update(p_quotes['result'][index])
+            c_list.append(x)
+
+            # Add some calculated values to the combined list
+            for item in c_list:
+                item.update (
+                    {'avg_price': (item['total_cost'] / item['no_of_shares_owned']),
+                     # 'volume': (item['regularMarketVolume'] / 1000),
+                     'volume': '{:,}'.format(math.trunc(item['regularMarketVolume'] / 1000)),
+                     'market_value': (item['bid'] * item['no_of_shares_owned']),
+                     'change': (Decimal(item['bid'] * item['no_of_shares_owned']) - item['total_cost']),
+                     }
+                )
+            # for item in c_list:
+            #     item
+
+        return c_list
+
+        # list = [{'stock_symbol': x.stock_symbol, 'company_name': x.company_name,
+        #         'no_of_shares_owned': x.no_of_shares_owned, 'avg_price': (x.total_cost / x.no_of_shares_owned),
+        #         'total_cost': x.total_cost}
+        #        for x in Holding.objects.filter(user=self.request.user)]
+        # return list
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Add Account details to the context
         context["account"] = Account.objects.get(user=self.request.user)
+
+        # Compute total value of investments
+        investments = 0
+        for h in context['object_list']:
+            investments += (h['no_of_shares_owned'] * h['bid'])
+        context["investments"] = investments
+        context["portfolio_total"] = (context["account"].cash + Decimal(investments))
 
         return context
 

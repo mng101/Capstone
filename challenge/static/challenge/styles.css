@@ -28,6 +28,10 @@
   font-size: 85%;
 }
 
+.text-x-small {
+  font-size: 70%;
+}
+
 .dropdown-toggle {
   outline: 0;
 }
@@ -67,9 +71,17 @@
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   text-align: center;
+  font-size: 85%;
   background-color: rgba(86, 61, 124, 0.15);
   border: 1px solid rgba(86, 61, 124, 0.2);
-  margin: auto;
+}
+
+.portfolio-header-row {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 85%;
+  background-color: rgba(86, 61, 124, 0.15);
+  border: 1px solid rgba(86, 61, 124, 0.2);
 }
 
 .indices {
@@ -82,7 +94,16 @@
   table-layout: fixed;
   border-collapse: collapse;
   padding: 5px;
-  margin: 0px;
+  margin: 0;
+}
+
+.portfolio-grid-col {
+  display: grid;
+  padding: 5px;
+  font-size: 85%;
+  border-collapse: collapse;
+  border-bottom: 1px dimgrey;
+  grid-template-rows: auto;
 }
 
 /*# sourceMappingURL=styles.css.map */

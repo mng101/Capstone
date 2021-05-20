@@ -49,7 +49,6 @@ def refresh_quotes(request, symlist):
     # when the Portfolio quotes are to be retreived from the external source. A new entry for
     # portfolio_quotes is created, if one does not exist
     #
-
     if "portfolio_quotes" not in request.session:
         request.session["portfolio_quotes"] = []
         request.session["portfolio_quotes"].append({'timestamp': 0})

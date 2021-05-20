@@ -6,54 +6,59 @@
 {% block content %}
 
     <div class="container">
+        <p>Welcome back <b>{{ account.first_name }} {{ account.middle_name }} {{ account.last_name }}</b></p>
 
-    <p>Welcome back <b>{{ account.first_name }} {{ account.middle_name }} {{ account.last_name }}</b></p>
+        <div class="row row-cols-1 row-cols-md-4 gx-2">
+          <div class="col themed-grid-col">Cash Balance</div>
+          <div class="col themed-grid-col">Investments</div>
+          <div class="col themed-grid-col">Portfolio Total</div>
+          <div class="col themed-grid-col">Trades Last 5 Days</div>
+          <div class="col themed-grid-col">{{ account.cash|currency }}</div>
+          <div class="col themed-grid-col">{{ investments|currency }}</div>
+          <div class="col themed-grid-col">{{ portfolio_total|currency }}</div>
+          <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
+        </div>
 
-    <div class="row row-cols-1 row-cols-md-4 gx-2">
-      <div class="col themed-grid-col">Cash Balance</div>
-      <div class="col themed-grid-col">Investments</div>
-      <div class="col themed-grid-col">Portfolio Total</div>
-      <div class="col themed-grid-col">Trades Last 5 Days</div>
-      <div class="col themed-grid-col">{{ account.cash|currency }}</div>
-      <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
-      <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
-      <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
-    </div>
+        <br>
 
-    <br>
+        <h4>Portfolio</h4>
 
-    <h4>Portfolio</h4>
+        <div class="row portfolio-header-row gx-2">
+            <div class="col-md-3 portfolio-grid-col gx-2">Symbol<br>Company Name</div>
+            <div class="col-md-1 portfolio-grid-col gx-2">Qty</div>
+            <div class="col-md-1 portfolio-grid-col gx-2" >Avg<br>Price</div>
+            <div class="col-md-1 portfolio-grid-col gx-2">Cost</div>
+            <div class="col-md-1 portfolio-grid-col gx-2">Bid</div>
+            <div class="col-md-1 portfolio-grid-col gx-2">Ask</div>
+{#            <div class="col-md-1">Ask</div>#}
+            <div class="col-md-1 portfolio-grid-col gx-2">Volume<br>(000s)</div>
+            <div class="col-md-1 portfolio-grid-col gx-2">Market<br>Value</div>
+            <div class="col-md-1 Portfolio-grid-col gx-2">Change</div>
+{#            <div class="col-md-1">% Change</div>#}
+        </div>
 
-    {% if object_list %}
-        <table class="table">
-        <tr class="text-small">
-            <th class="span3">Symbol<br>Company Name</th>
-{#            <th class="span3">Company Name</th>#}
-            <th class="col-sm-3half">Quantity</th>
-            <th class="span1">Avg Price</th>
-            <th class="span1">Cost</th>
-            <th class="span1">Market Price</th>
-            <th class="span1">Value</th>
-        </tr>
+        {% if object_list %}
+            <div class="row portfolio-grid-col gx-2">
+                {%  for item in object_list %}
+                    <div class="row">
+                    <div class="col-md-3 portfolio-grid-col">{{ item.stock_symbol }}<br>{{ item.company_name }}</div>
+                    <div class="col-md-1">{{ item.no_of_shares_owned }}</div>
+                    <div class="col-md-1">{{ item.avg_price|currency }}</div>
+{#                    <div class="col-md-1">Avg Price</div>#}
+                    <div class="col-md-1">{{ item.total_cost|currency }}</div>
+                    <div class="col-md-1">{{ item.bid|currency }}</div>
+                    <div class="col-md-1">{{ item.ask|currency }}</div>
+{#                    <div class="col-md-1">{{ item.regularMarketVolume }}</div>#}
+                    <div class="col-md-1">{{ item.volume }}</div>
+                    <div class="col-md-1">{{ item.market_value|currency }}</div>
+                    <div class="col-md-1">{{ item.change|currency }}</div>
+                    </div>
+                {% endfor %}
+            </div>
 
-        {% for item in object_list %}
-            <tr>
-                <td>{{ item.stock_symbol }}<br>{{ item.company_name }}</td>
-{#                <td>{{ item.company_name }}</td>#}
-                <td>{{ item.no_of_shares_owned }}</td>
-                <td>{{ item.avg_price|currency }}</td>
-                <td>{{ item.total_cost|currency }}</td>
-                <td>Market Price</td>
-                <td>Value</td>
-            </tr>
-
-        {% endfor %}
-
-        </table>
-    {% else %}
-        <h6>You have no holdings in your Portfolio</h6>
-    {% endif %}
-
+        {% else %}
+            <h6>You have no holdings in your Portfolio</h6>
+        {% endif %}
     </div>
 
 {% endblock %}
