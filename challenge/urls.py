@@ -30,4 +30,5 @@ urlpatterns = [
     path("thanks/", views.ThanksPageView.as_view(), name="thanks"),
     path("contact/<int:pk>", views.AccountUpdateView.as_view(), name="contact"),
     path("watchlist/<int:pk>", views.WatchlistView.as_view(), name="watchlist"),
+    path("transaction/", views.TransactionCreateView.as_view(), name="transaction"),
 ]

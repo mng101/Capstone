@@ -6,7 +6,7 @@ from django.conf import settings
 import requests
 import json
 
-MARKET_DATA_REFRESH_INTERVAL = 15
+MARKET_DATA_REFRESH_INTERVAL = 7200
 
 def get_quotes(request, symbols):
     #

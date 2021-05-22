@@ -26,13 +26,12 @@ class Account(models.Model):
         return f"{self.first_name} {self.middle_name} {self.last_name} - {self.cash} - {self.member_since}"
 
 
-'''
-TODO - Strictly speaking, the Holding model should not be required. It is possible to derive the list of
-       holdings from the transactions. This will mean more coding and slower processing. Will leave this
-       decision ot a later date.
-       For a start, both the Transaction, and Holding models will be updated with relevant values for each
-       Trade excuted
-'''
+# TODO - Strictly speaking, the Holding model should not be required. It is possible to derive the list of
+#        holdings from the transactions. This will mean more coding and slower processing. Will leave this
+#        decision ot a later date.
+#        For a start, both the Transaction, and Holding models will be updated with relevant values for each
+#        Trade excuted
+
 class Holding(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name='holdings')
     stock_symbol = models.CharField(max_length=6, null=False)
@@ -46,12 +45,11 @@ class Holding(models.Model):
         return f"{self.stock_symbol} - {self.company_name} - {self.no_of_shares_owned} - {self.total_cost}"
 
 
-'''
-  The Transaction model will hold the trades executed by the User. Trades will be settled immediately at the mid
-  point between the 'bid' and 'ask' values for the security being traded. The Holding model must be updated at the
-  same time as the Transaction model. In addition, the 'cash' balance in the Account model must be updated. Using
-  signals is probably the easiest approach to synchronizing the updates
-'''
+# The Transaction model will hold the trades executed by the User. Trades will be settled immediately at the mid
+# point between the 'bid' and 'ask' values for the security being traded. The Holding model must be updated at the
+# same time as the Transaction model. In addition, the 'cash' balance in the Account model must be updated. Using
+# signals is probably the easiest approach to synchronizing the updates
+
 class Transaction (models.Model):
     ACTIVITIES = (
         ('B', 'Buy'),

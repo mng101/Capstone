@@ -41,7 +41,7 @@
 }
 
 .intro {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 #about {
@@ -98,11 +98,9 @@
 }
 
 .portfolio-grid-col {
-  display: grid;
-  padding: 5px;
+  padding-bottom: 0.5rem;
   font-size: 85%;
-  border-collapse: collapse;
-  border-bottom: 1px dimgrey;
+  border-bottom: 1px black;
   grid-template-rows: auto;
 }
 

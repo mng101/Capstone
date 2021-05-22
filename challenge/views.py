@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
 # from django.template import Library
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 # Import django settings to access the Rapid API Key
 from django.conf import settings
@@ -16,15 +18,14 @@ import numpy
 import math
 
 from . import forms
-from .models import Account, Holding, Watchlist
-from .forms import AccountForm
+from .models import Account, Holding, Transaction, Watchlist
+from .forms import AccountForm, TransactionForm
 from . import utils
 from decimal import Decimal
 
 # Define the interval during which repeated API calls for market data are to be avoided
 #
-MARKET_DATA_REFRESH_INTERVAL = 15
-
+MARKET_DATA_REFRESH_INTERVAL = 7200
 
 # register = Library()
 
@@ -290,7 +291,7 @@ class HoldingListView(ListView):
 
             # Add some calculated values to the combined list
             for item in c_list:
-                item.update (
+                item.update(
                     {'avg_price': (item['total_cost'] / item['no_of_shares_owned']),
                      # 'volume': (item['regularMarketVolume'] / 1000),
                      'volume': '{:,}'.format(math.trunc(item['regularMarketVolume'] / 1000)),
@@ -327,3 +328,15 @@ class HoldingListView(ListView):
 class WatchlistView(ListView):
     model = Watchlist
     template_name = 'challenge/watchlist.html'
+
+
+class TransactionCreateView(LoginRequiredMixin, CreateView):
+    model = Transaction
+    form_class = TransactionForm
+
+    login_url = 'login'
+
+    def form_valid(self, form):
+        form.instance.user_id = self.request.user
+        form.instance.valid = False
+        return super(TransactionCreateView, self).form_valid(form)

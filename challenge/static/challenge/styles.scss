@@ -39,7 +39,7 @@
 }
 
 .intro {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 #about {
@@ -72,14 +72,11 @@
   font-size: 85%;
   background-color: rgba(86, 61, 124, .15);
   border: 1px solid rgba(86, 61, 124, .2);
-  //margin: auto;
 }
 
 .portfolio-header-row {
   padding-top: .50rem;
   padding-bottom: .50rem;
-  //text-align: center;
-  //vertical-align: center;
   font-size: 85%;
   background-color: rgba(86, 61, 124, .15);
   border: 1px solid rgba(86, 61, 124, .2);
@@ -88,8 +85,6 @@
 .indices {
   border-collapse: collapse;
   alignment: center;
-  //width: 75%;
-  //margin: auto;
 }
 .table {
   width: 100%;
@@ -99,25 +94,9 @@
   margin: 0;
 }
 
-// Table background even rows
-//tr:nth-child(even) {
-//  background: #eee;
-//}
-//
-//// Table backgroup odd rows
-//tr:nth-child(odd) {
-//  background: #ddd;
-//}
 .portfolio-grid-col {
-  display: grid;
-  //width: auto;
-  //padding-top: .50rem;
-  //padding-bottom: .50rem;
-  padding: 5px;
+  padding-bottom: .50rem;
   font-size: 85%;
-  border-collapse: collapse;
-  border-bottom: 1px dimgrey;
-  //margin: 10px;
-  //grid-template-columns: 3fr;
+  border-bottom: 1px black;
   grid-template-rows: auto;
 }
