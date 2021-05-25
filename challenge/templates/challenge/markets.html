@@ -14,6 +14,8 @@
                         <b>{{ item.regularMarketPreviousClose.raw|floatformat:'1' }}</b></div>
                 {% endfor %}
             </div>
+        {% else %}
+            Market Indices not available at this time. Try again later.<br>
         {% endif %}
 
         <br>
@@ -28,7 +30,8 @@
                     </tr>
                 {% endfor %}
             </table>
-
+        {% else %}
+            News Headlines not available at this time. Try again later.<br>
         {% endif %}
 
     </div>
