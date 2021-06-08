@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 # Create your models here.
 class User(AbstractUser):
@@ -26,6 +27,18 @@ class Account(models.Model):
         return f"{self.first_name} {self.middle_name} {self.last_name} - {self.cash} - {self.member_since}"
 
 
+# Symbol list for TSX Constituents as of Jan 2021. Transaction entry will be validated against the
+# symbols listed here. This model was added after the Holding model, which is why the stock_symbol in
+# Holding model is not a ForeignKey
+#
+class TSXStock(models.Model):
+    symbol = models.CharField(max_length=10, null=False)
+    name = models.CharField(max_length=100, null=False)
+
+    def __str__(self):
+        return f"{self.symbol} - {self.name}"
+
+
 # TODO - Strictly speaking, the Holding model should not be required. It is possible to derive the list of
 #        holdings from the transactions. This will mean more coding and slower processing. Will leave this
 #        decision ot a later date.
@@ -40,6 +53,9 @@ class Holding(models.Model):
     # no_of_shared_owned is totaled from all the trades for this security
     total_cost = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     # total_cost is the sum total of the cost of all related transactions
+
+    class Meta:
+        ordering = ["stock_symbol"]
 
     def __str__(self):
         return f"{self.stock_symbol} - {self.company_name} - {self.no_of_shares_owned} - {self.total_cost}"
@@ -69,11 +85,29 @@ class Transaction (models.Model):
 
 class Watchlist(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="watchlists")
-    num = models.IntegerField(null=False)
+    number = models.IntegerField(null=False)
     title = models.CharField(max_length=64)
-    stock_symbol = models.CharField(max_length=6, null=False)
-    date_listed = models.DateField(auto_now_add=True)
-    price_when_listed = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f"User:{self.user} - Watchlist No. {self.number} - {self.title}"
+
+
+class WatchlistItem(models.Model):
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    number = models.ForeignKey("Watchlist", on_delete=models.CASCADE)
+    symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE, related_name="watchlistitems")
+    date_added = models.DateField(auto_now_add=True)
+    price_when_added = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
+
+    class Meta:
+        ordering = ["symbol"]
+
+    def __str__(self):
+        # return f"{self.user} WL# {self.number} - {self.symbol} - {self.date_added}"
+        return f"{self.user} WL# {self.number} - {self.symbol}"
+
+    def get_absolute_url(self):
+        return reverse("watchlist", kwargs={'pk':self.number_id})
 
 
 '''

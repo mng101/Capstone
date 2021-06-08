@@ -4,6 +4,7 @@ from django.utils import timezone
 # from django.template import Library
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 # Import django settings to access the Rapid API Key
 from django.conf import settings
@@ -16,12 +17,14 @@ import requests
 import json
 import numpy
 import math
+import datetime
 
 from . import forms
-from .models import Account, Holding, Transaction, Watchlist
-from .forms import AccountForm, TransactionForm
+from .models import Account, TSXStock, Holding, Watchlist, WatchlistItem, Transaction
+from .forms import AccountForm, TransactionForm, WatchlistItemForm
 from . import utils
 from decimal import Decimal
+
 
 # Create your views here.
 
@@ -80,7 +83,7 @@ class HoldingListView(ListView):
         # Get quotes for all the symbols in the portfolio.
         p_quotes = utils.get_quotes(self.request, sym_list)
 
-        if (p_quotes is not None):
+        if p_quotes is not None:
 
             # Get a list of holdings and convert to a list of dictionaries
             h_list = Holding.objects.filter(user=self.request.user).values()
@@ -112,7 +115,7 @@ class HoldingListView(ListView):
         context["account"] = Account.objects.get(user=self.request.user)
         # Compute total value of investments
         investments = 0
-        if (context['object_list'] is not None):
+        if context['object_list'] is not None:
             for h in context['object_list']:
                 investments += (h['no_of_shares_owned'] * h['bid'])
         context["investments"] = investments
@@ -120,10 +123,68 @@ class HoldingListView(ListView):
         return context
 
 
-class WatchlistView(ListView):
+class WatchlistView(LoginRequiredMixin, ListView):
     model = Watchlist
     template_name = 'challenge/watchlist.html'
 
+    login_url = 'login'
+
+    def get_queryset(self):
+        # Get the items in the Watchlist formatted as a list of dictionaries
+        watchlist_items = WatchlistItem.objects.filter(user=self.request.user, number=self.kwargs['pk']).values()
+        # Merge symlist with RapidAPI Quotes
+        combined_list = utils.enrich(self.request, watchlist_items)
+
+        # Add the price_change for each of the items
+        for item in combined_list:
+            item.update(
+                {'price_change': (Decimal(item['ask']) - item['price_when_added']),
+                 }
+            )
+        return combined_list
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["watchlist"] = Watchlist.objects.get(user=self.request.user, number=self.kwargs['pk'])
+        context['watchlist_item'] = WatchlistItemForm()
+        return context
+
+
+@csrf_exempt
+@login_required()
+def updatetitle(request, pk):
+    if request.method != "PUT":
+        return JsonResponse({"error": "Post request required."}, status=400)
+    print("Executing _updatetitle in views.py")
+
+    data = json.loads(request.body)
+
+    w1 = Watchlist.objects.get(id=pk)
+    w1.title = data["title"]
+    w1.save()
+
+    return JsonResponse({"message": "Update successful"}, status=200)
+
+
+class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
+    model = WatchlistItem
+    form_class = WatchlistItemForm
+
+    login_url = 'login'
+
+    # def get_initial(self):
+    #     return {'number_id': self.kwargs['pk'],
+    #             'user_id': self.request.user.id, }
+
+    def form_valid(self, form):
+        form.instance.user_id = self.request.user.id
+        form.instance.number_id = self.kwargs['pk']
+        symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
+        form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
+                                          Decimal(symbol_quote['result'][0]['ask'])) / 2)
+        form.instance.date_added = datetime.date.today()
+        form.instance.valid = True
+        return super(WatchlistItemCreateView, self).form_valid(form)
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction

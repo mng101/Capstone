@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
 
-from .models import Account, Transaction
+from .models import Account, Transaction, Watchlist, WatchlistItem
 
 
 class UserCreateForm(UserCreationForm):
@@ -48,3 +48,15 @@ class TransactionForm(ModelForm):
             "activity": "Action:",
             "quantity": "Quantity:",
         }
+
+class WatchlistItemForm(ModelForm):
+    class Meta:
+        model = WatchlistItem
+        fields = ['symbol',]
+        labels = {
+            "symbol": "",
+        }
+
+    def clean_symbol(self):
+        cleaned_data = self.cleaned_data.get('symbol')
+        return cleaned_data

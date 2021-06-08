@@ -40,6 +40,17 @@
   font-size: 15px;
 }
 
+.btn-sm {
+  font-size: 10px;
+  padding: 1px;
+  margin-left: 10px;
+}
+
+.watchlist_title, .watchlist_item {
+  font-size: 75%;
+  margin-bottom: 5px;
+}
+
 .intro {
   font-size: 16px;
 }

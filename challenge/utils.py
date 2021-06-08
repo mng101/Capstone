@@ -1,5 +1,5 @@
 from django.db.models import Count, Case, When, BooleanField, Value
-from challenge.models import Holding, Transaction, Watchlist
+from challenge.models import TSXStock, Holding, Transaction, Watchlist, WatchlistItem
 
 from django.utils import timezone
 from django.conf import settings
@@ -75,6 +75,38 @@ def get_quotes(request, symbols):
         return None
 
 
-def enrich(request, portfolio_list):
-    p = portfolio_list
-    return p
+def enrich(request, list):
+    # Given a list of items (holdings, watchlist, etc), combine the list with quotes retreived
+    # from RapidAPI
+    #
+
+    symbols = []
+    # for index, value in enumerate(list):
+    #     # quote_list.append(TSXStock.objects.filter(id=value["symbol_id"]).values_list("symbol", flat=True))
+    #     symbols.append(TSXStock.objects.get(id=value["symbol_id"]).symbol)
+
+    for item in list:
+        # quote_list.append(TSXStock.objects.filter(id=value["symbol_id"]).values_list("symbol", flat=True))
+        symbols.append(TSXStock.objects.get(id=item["symbol_id"]).symbol)
+
+    sym_list = ','.join(symbols)
+
+    quotes = utils.get_quotes(request, sym_list)
+
+    combined_list = []
+    for index, value in enumerate(list):
+        x = list[index].copy()
+        x.update(quotes['result'][index])
+        combined_list.append(x)
+
+    return combined_list
+
+
+def single_quote(request, symbol):
+    # Get quote for a single symbol and return the result
+    #
+
+    s1 = []
+    s1.append(symbol)
+    quote = utils.get_quotes(request, s1)
+    return quote

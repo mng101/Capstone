@@ -8,13 +8,13 @@
 {% block content %}
     <div class="container">
 
-        <h2>
+        <h4>
             {% if not form.instance.pk %}
                 User ID not passed
             {% else %}
                 Update your contact details
             {% endif %}
-        </h2>
+        </h4>
 
         <form method="post">
             {% csrf_token %}

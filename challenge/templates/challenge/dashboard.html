@@ -24,7 +24,7 @@
         <h4>Portfolio</h4>
 
         <div class="row portfolio-header-row gx-2">
-            <div class="col-md-2">Symbol<br>Company Name</div>
+            <div class="col-md-3">Symbol<br>Company Name</div>
             <div class="col-md-1 text-end">Qty</div>
             <div class="col-md-1 text-end" >Avg<br>Price</div>
             <div class="col-md-1 text-end">Cost</div>
@@ -33,14 +33,14 @@
             <div class="col-md-1 text-end">Volume<br>(000s)</div>
             <div class="col-md-1 text-end">Market<br>Value</div>
             <div class="col-md-1 text-end">Change</div>
-            <div class="col-md-2 text-end">52w Range</div>
+            <div class="col-md-1 text-end">52w Range</div>
         </div>
 
         {% if object_list %}
 
             {%  for item in object_list %}
                 <div class="row portfolio-grid-col gx-2">
-                    <div class="col-md-2">{{ item.stock_symbol }}<br>{{ item.company_name }}</div>
+                    <div class="col-md-3">{{ item.stock_symbol }}<br>{{ item.longName }}</div>
                     <div class="col-md-1 text-end">{{ item.no_of_shares_owned }}</div>
                     <div class="col-md-1 text-end">{{ item.avg_price|currency }}</div>
                     <div class="col-md-1 text-end">{{ item.total_cost|currency }}</div>
@@ -49,7 +49,7 @@
                     <div class="col-md-1 text-end">{{ item.volume }}</div>
                     <div class="col-md-1 text-end">{{ item.market_value|currency }}</div>
                     <div class="col-md-1 text-end">{{ item.change|currency }}</div>
-                    <div class="col-md-2 text-end">{{ item.fiftyTwoWeekRange }}</div>
+                    <div class="col-md-1 text-end">{{ item.fiftyTwoWeekRange }}</div>
                 </div>
             {% endfor %}
 
