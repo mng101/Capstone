@@ -82,17 +82,20 @@
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   text-align: center;
-  font-size: 85%;
+  font-size: 75%;
   background-color: rgba(86, 61, 124, 0.15);
   border: 1px solid rgba(86, 61, 124, 0.2);
 }
 
 .portfolio-header-row {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  font-size: 85%;
+  font-size: 75%;
   background-color: rgba(86, 61, 124, 0.15);
   border: 1px solid rgba(86, 61, 124, 0.2);
+}
+
+.portfolio-holding-row {
+  font-size: 75%;
+  margin-bottom: 5px;
 }
 
 .indices {
@@ -106,13 +109,6 @@
   border-collapse: collapse;
   padding: 5px;
   margin: 0;
-}
-
-.portfolio-grid-col {
-  padding-bottom: 0.5rem;
-  font-size: 85%;
-  border-bottom: 1px black;
-  grid-template-rows: auto;
 }
 
 /*# sourceMappingURL=styles.css.map */

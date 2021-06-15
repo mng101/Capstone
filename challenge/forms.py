@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
+from django.http import HttpResponse
+from django.core.exceptions import ValidationError
+from django import forms
 
 from .models import Account, Transaction, Watchlist, WatchlistItem
 
@@ -59,4 +62,21 @@ class WatchlistItemForm(ModelForm):
 
     def clean_symbol(self):
         cleaned_data = self.cleaned_data.get('symbol')
-        return cleaned_data
+        # TODO - Check less than 10 items in the watchlist
+        # TODO - Check the symbol to be added does not alreaty exist in the watchlist.
+        try:
+            w1 = WatchlistItem.objects.get(user=self.initial['user_id'],
+                                           number__number=self.initial['number_id'],
+                                           symbol=cleaned_data.pk)
+        except WatchlistItem.DoesNotExist:
+            w1 = None
+            print("Object does not exist")
+            pass
+
+        if w1 is not None:
+            raise forms.ValidationError("Duplicate Symbol in Watchlist")
+        else:
+            return cleaned_data
+
+    # def clean(self):
+    #     print("In clean")

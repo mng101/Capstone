@@ -4,7 +4,10 @@ from django.utils import timezone
 # from django.template import Library
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 # Import django settings to access the Rapid API Key
 from django.conf import settings
@@ -169,12 +172,21 @@ def updatetitle(request, pk):
 class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
     model = WatchlistItem
     form_class = WatchlistItemForm
+    template_name = 'challenge/watchlist.html'
 
     login_url = 'login'
 
-    # def get_initial(self):
-    #     return {'number_id': self.kwargs['pk'],
-    #             'user_id': self.request.user.id, }
+    def get_initial(self):
+        print("Get Initial")
+        return {'number_id': self.kwargs['pk'],
+                'user_id': self.request.user.id, }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print("Get Context Data")
+
+    # def get_template_names(self):
+    #     print("get_template_names")
 
     def form_valid(self, form):
         form.instance.user_id = self.request.user.id
@@ -185,6 +197,13 @@ class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
         form.instance.date_added = datetime.date.today()
         form.instance.valid = True
         return super(WatchlistItemCreateView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        # messages.error(self.request, self.error_message)
+        return super().form_invalid(form)
+
+
+    #TODO - WatchlistItemDeleteView
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction

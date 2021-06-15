@@ -10,23 +10,44 @@
 
         <div class="bd-example">
         <nav aria-label="Standard pagination example">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-            <li class="page-item active" aria-current="page">
-                <a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">4</a></li>
-            <li class="page-item"><a class="page-link" href="#">5</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
+            <ul class="pagination">
+            {# TODO - Improve the following section of code, time permitting           #}
+
+                {% if watchlist.number == 1 %}
+                    <li class="page-item active" aria-current="page">
+                {% else %}
+                    <li class="page-item">
+                {% endif %}
+                <a class="page-link" href="{% url 'watchlist' 1 %}">1</a></li>
+
+                {% if watchlist.number == 2 %}
+                    <li class="page-item active" aria-current="page">
+                {% else %}
+                    <li class="page-item">
+                {% endif %}
+                <a class="page-link" href="{% url 'watchlist' 2 %}">2</a></li>
+
+                {% if watchlist.number == 3 %}
+                    <li class="page-item active" aria-current="page">
+                {% else %}
+                    <li class="page-item">
+                {% endif %}
+                <a class="page-link" href="{% url 'watchlist' 3 %}">3</a></li>
+
+                {% if watchlist.number == 4 %}
+                    <li class="page-item active" aria-current="page">
+                {% else %}
+                    <li class="page-item">
+                {% endif %}
+                <a class="page-link" href="{% url 'watchlist' 4 %}">4</a></li>
+
+                {% if watchlist.number == 5 %}
+                    <li class="page-item active" aria-current="page">
+                {% else %}
+                    <li class="page-item">
+                {% endif %}
+                <a class="page-link" href="{% url 'watchlist' 1 %}">5</a></li>
+
           </ul>
         </nav>
         </div>
@@ -55,7 +76,7 @@
         <div class="row portfolio-header-row gx-2">
             <div class="col-md-2">Symbol<br>Company Name</div>
             <div class="col-md-1 text-end">Date Added</div>
-            <div class="col-md-1 text-end" >Price</div>
+            <div class="col-md-1 text-end" >Price When Added</div>
             <div class="col-md-1 text-end">Bid</div>
             <div class="col-md-1 text-end">Ask</div>
             <div class="col-md-1 text-end">Price Change</div>
@@ -65,7 +86,7 @@
 {##}
         {% if object_list %}
             {%  for item in object_list %}
-                <div class="row portfolio-grid-col gx-2">
+                <div class="row portfolio-holding-row gx-2">
                     <div class="col-md-2">{{ item.symbol }}<br>{{ item.longName }}</div>
                     <div class="col-md-1 text-end">{{ item.date_added|date:'d-m-y' }}</div>
                     <div class="col-md-1 text-end">{{ item.price_when_added|currency }}</div>

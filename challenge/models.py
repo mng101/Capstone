@@ -107,7 +107,8 @@ class WatchlistItem(models.Model):
         return f"{self.user} WL# {self.number} - {self.symbol}"
 
     def get_absolute_url(self):
-        return reverse("watchlist", kwargs={'pk':self.number_id})
+        # return reverse("watchlist", kwargs={'pk':self.number_id})
+        return reverse("watchlist", kwargs={'pk':self.number.number})
 
 
 '''
@@ -125,6 +126,13 @@ def create_user_account(sender, instance, created, **kwargs):
     if created:
         Account.objects.create(user=instance)
         print('Account created')
+
+        # Create 5 Watchlists for each User when the User account is created
+        for x in range(1,6):
+            w = Watchlist(user=instance, number=x)
+            w.save()
+        print('Watchlists created')
+
 
 
 '''
