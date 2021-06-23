@@ -1,32 +1,25 @@
-from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.utils import timezone
+import datetime
+import json
+import math
+from decimal import Decimal
+
+from django.contrib.auth.decorators import login_required
 # from django.template import Library
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-
-# Import django settings to access the Rapid API Key
-from django.conf import settings
-
-from django.views.generic.base import TemplateView
-from django.contrib import messages
-from django.views.generic import (View, TemplateView, ListView, DetailView,
-                                  CreateView, DeleteView, UpdateView, )
-import requests
-import json
-import numpy
-import math
-import datetime
+from django.http import JsonResponse
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import (TemplateView, ListView, CreateView, UpdateView, )
 
 from . import forms
-from .models import Account, TSXStock, Holding, Watchlist, WatchlistItem, Transaction
-from .forms import AccountForm, TransactionForm, WatchlistItemForm
 from . import utils
-from decimal import Decimal
+from .forms import AccountForm, TransactionForm, WatchlistItemForm
+from .models import Account, Holding, Watchlist, WatchlistItem, Transaction
+
+
+# Import django settings to access the Rapid API Key
 
 
 # Create your views here.
@@ -126,6 +119,7 @@ class HoldingListView(ListView):
         return context
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class WatchlistView(LoginRequiredMixin, ListView):
     model = Watchlist
     template_name = 'challenge/watchlist.html'
@@ -134,7 +128,7 @@ class WatchlistView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         # Get the items in the Watchlist formatted as a list of dictionaries
-        watchlist_items = WatchlistItem.objects.filter(user=self.request.user, number=self.kwargs['pk']).values()
+        watchlist_items = WatchlistItem.objects.filter(user=self.request.user, number__number=self.kwargs['pk']).values()
         # Merge symlist with RapidAPI Quotes
         combined_list = utils.enrich(self.request, watchlist_items)
 
@@ -153,7 +147,6 @@ class WatchlistView(LoginRequiredMixin, ListView):
         return context
 
 
-@csrf_exempt
 @login_required()
 def updatetitle(request, pk):
     if request.method != "PUT":
@@ -198,9 +191,10 @@ class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
         form.instance.valid = True
         return super(WatchlistItemCreateView, self).form_valid(form)
 
-    def form_invalid(self, form):
-        # messages.error(self.request, self.error_message)
-        return super().form_invalid(form)
+    # def form_invalid(self, form):
+    #     # messages.error(self.request, self.error_message)
+    #     # return super().form_invalid(form)
+    #     return render(self.request, "challenge/watchlist.html")
 
 
     #TODO - WatchlistItemDeleteView
