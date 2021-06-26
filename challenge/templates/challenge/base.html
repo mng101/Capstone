@@ -38,7 +38,18 @@
                     <li><a href="{% url 'dashboard' %}" class="nav-link px-2 link-dark">Dashboard</a></li>
                     <li><a href="#" class="nav-link px-2 link-dark">Txn History</a></li>
                     <li><a href="{% url 'transaction' %}" class="nav-link px-2 link-dark">Trading</a></li>
-                    <li><a href="{% url 'watchlist' 1 %}" class="nav-link px-2 link-dark">Watchlists</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Watchlists
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'watchlist' 1 %}" class="nav-link px-2 link-dark">Watchlists #1</a></li>
+                            <li><a href="{% url 'watchlist' 2 %}" class="nav-link px-2 link-dark">Watchlists #2</a></li>
+                            <li><a href="{% url 'watchlist' 3 %}" class="nav-link px-2 link-dark">Watchlists #3</a></li>
+                            <li><a href="{% url 'watchlist' 4 %}" class="nav-link px-2 link-dark">Watchlists #4</a></li>
+                            <li><a href="{% url 'watchlist' 5 %}" class="nav-link px-2 link-dark">Watchlists #5</a></li>
+                        </ul>
+                    </li>
                     <li><a href="{% url 'contact' user.id %}" class="nav-link px-2 link-dark">My Contact</a></li>
                 {% endif %}
                 <li><a href="JavaScript:showAbout();" class="nav-link px-2 link-dark">About</a></li>
@@ -55,9 +66,10 @@
         </header>
     </div>
 
-{#        {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}#}
+        {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
 
         {% block content %}(no content){% endblock %}
+
     </div>
 
     <script src="{% static 'challenge/index.js' %}"></script>

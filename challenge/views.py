@@ -120,8 +120,9 @@ class HoldingListView(ListView):
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-class WatchlistView(LoginRequiredMixin, ListView):
+class WatchlistView(LoginRequiredMixin, CreateView):
     model = Watchlist
+    form_class = WatchlistItemForm
     template_name = 'challenge/watchlist.html'
 
     login_url = 'login'
@@ -143,8 +144,36 @@ class WatchlistView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["watchlist"] = Watchlist.objects.get(user=self.request.user, number=self.kwargs['pk'])
-        context['watchlist_item'] = WatchlistItemForm()
+        context['watchlistitem_form'] = WatchlistItemForm()
+
+        # Get the items in the Watchlist formatted as a list of dictionaries
+        watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
+                                                       number__number=self.kwargs['pk']).values()
+        # Merge symlist with RapidAPI Quotes
+        combined_list = utils.enrich(self.request, watchlist_items)
+        # Add the price_change for each of the items
+        for item in combined_list:
+            item.update(
+                {'price_change': (Decimal(item['ask']) - item['price_when_added']),
+                 }
+            )
+        context['watchlist_items'] = combined_list
         return context
+
+    def form_valid(self, form):
+        form.instance.user_id = self.request.user.id
+        form.instance.number_id = self.kwargs['pk']
+        symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
+        form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
+                                          Decimal(symbol_quote['result'][0]['ask'])) / 2)
+        form.instance.date_added = datetime.date.today()
+        form.instance.valid = True
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("In form_invalid")
+        messages.error(self.request, form.errors)
+        return super().form_invalid(form)
 
 
 @login_required()

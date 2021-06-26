@@ -37,7 +37,8 @@ class AccountForm(ModelForm):
 
         def clean_first_name(self):
             cleaned_data = self.cleaned_data.get('first_name')
-            account.save()
+            # Explicit account.save() is no required
+            # account.save()
             return cleaned_data
 
 
@@ -75,8 +76,8 @@ class WatchlistItemForm(ModelForm):
 
         if w1 is not None:
             raise forms.ValidationError("Duplicate Symbol in Watchlist")
-        else:
-            return cleaned_data
+        # else:
+        return cleaned_data
 
     # def clean(self):
     #     print("In clean")

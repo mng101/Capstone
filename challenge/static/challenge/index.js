@@ -1,6 +1,23 @@
 console.log('JavaScript loaded');
 hideAbout();
 
+// getCookie function from Django documentation
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function titleUpdate(watchlist_id) {
     console.log("Watchlist title update")
     console.log(watchlist_id)
@@ -15,8 +32,13 @@ function titleUpdate(watchlist_id) {
 
     // BASE_URL = window.location.href;
     const BASEURL = window.location.protocol + "//" + window.location.host
+    const csrftoken = getCookie('csrftoken')
+    const request = new Request(
+        `${BASEURL}/updatetitle/${watchlist_id}`,
+        {headers: {'X-CSRFToken': csrftoken}}
+    )
 
-    fetch(`${BASEURL}/updatetitle/${watchlist_id}`, {
+    fetch(request, {
         method: "PUT",
         body: JSON.stringify({title:title})
     })
