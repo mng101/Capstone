@@ -1,11 +1,10 @@
-from django.urls import reverse_lazy
 import datetime
 import json
 import math
 from decimal import Decimal
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-# from django.template import Library
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -127,19 +126,10 @@ class WatchlistView(LoginRequiredMixin, CreateView):
 
     login_url = 'login'
 
-    def get_queryset(self):
-        # Get the items in the Watchlist formatted as a list of dictionaries
-        watchlist_items = WatchlistItem.objects.filter(user=self.request.user, number__number=self.kwargs['pk']).values()
-        # Merge symlist with RapidAPI Quotes
-        combined_list = utils.enrich(self.request, watchlist_items)
-
-        # Add the price_change for each of the items
-        for item in combined_list:
-            item.update(
-                {'price_change': (Decimal(item['ask']) - item['price_when_added']),
-                 }
-            )
-        return combined_list
+    def get_initial(self):
+        print("Get Initial")
+        return {'number_id': self.kwargs['pk'],
+                'user_id': self.request.user.id, }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -154,8 +144,7 @@ class WatchlistView(LoginRequiredMixin, CreateView):
         # Add the price_change for each of the items
         for item in combined_list:
             item.update(
-                {'price_change': (Decimal(item['ask']) - item['price_when_added']),
-                 }
+                {'price_change': (Decimal(item['ask']) - item['price_when_added']), }
             )
         context['watchlist_items'] = combined_list
         return context
@@ -164,8 +153,10 @@ class WatchlistView(LoginRequiredMixin, CreateView):
         form.instance.user_id = self.request.user.id
         form.instance.number_id = self.kwargs['pk']
         symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
+
         form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
                                           Decimal(symbol_quote['result'][0]['ask'])) / 2)
+
         form.instance.date_added = datetime.date.today()
         form.instance.valid = True
         return super().form_valid(form)
@@ -191,34 +182,36 @@ def updatetitle(request, pk):
     return JsonResponse({"message": "Update successful"}, status=200)
 
 
-class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
-    model = WatchlistItem
-    form_class = WatchlistItemForm
-    template_name = 'challenge/watchlist.html'
-
-    login_url = 'login'
-
-    def get_initial(self):
-        print("Get Initial")
-        return {'number_id': self.kwargs['pk'],
-                'user_id': self.request.user.id, }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        print("Get Context Data")
-
-    # def get_template_names(self):
-    #     print("get_template_names")
-
-    def form_valid(self, form):
-        form.instance.user_id = self.request.user.id
-        form.instance.number_id = self.kwargs['pk']
-        symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
-        form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
-                                          Decimal(symbol_quote['result'][0]['ask'])) / 2)
-        form.instance.date_added = datetime.date.today()
-        form.instance.valid = True
-        return super(WatchlistItemCreateView, self).form_valid(form)
+# TODO - Delete the following view if it is not required
+#
+# class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
+#     model = WatchlistItem
+#     form_class = WatchlistItemForm
+#     template_name = 'challenge/watchlist.html'
+#
+#     login_url = 'login'
+#
+#     def get_initial(self):
+#         print("Get Initial")
+#         return {'number_id': self.kwargs['pk'],
+#                 'user_id': self.request.user.id, }
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         print("Get Context Data")
+#
+#     # def get_template_names(self):
+#     #     print("get_template_names")
+#
+#     def form_valid(self, form):
+#         form.instance.user_id = self.request.user.id
+#         form.instance.number_id = self.kwargs['pk']
+#         symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
+#         form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
+#                                           Decimal(symbol_quote['result'][0]['ask'])) / 2)
+#         form.instance.date_added = datetime.date.today()
+#         form.instance.valid = True
+#         return super(WatchlistItemCreateView, self).form_valid(form)
 
     # def form_invalid(self, form):
     #     # messages.error(self.request, self.error_message)
@@ -226,7 +219,7 @@ class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
     #     return render(self.request, "challenge/watchlist.html")
 
 
-    #TODO - WatchlistItemDeleteView
+# TODO - WatchlistItemDeleteView
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction

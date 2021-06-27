@@ -8,67 +8,21 @@
     <div class="container">
        <h4>Watchlists</h4>
 
-{#        <div class="bd-example">#}
-{#        <nav aria-label="Standard pagination example">#}
-{#            <ul class="pagination">#}
-{##}
-{#                {% if watchlist.number == 1 %}#}
-{#                    <li class="page-item active" aria-current="page">#}
-{#                {% else %}#}
-{#                    <li class="page-item">#}
-{#                {% endif %}#}
-{#                <a class="page-link" href="{% url 'watchlist' 1 %}">1</a></li>#}
-{##}
-{#                {% if watchlist.number == 2 %}#}
-{#                    <li class="page-item active" aria-current="page">#}
-{#                {% else %}#}
-{#                    <li class="page-item">#}
-{#                {% endif %}#}
-{#                <a class="page-link" href="{% url 'watchlist' 2 %}">2</a></li>#}
-{##}
-{#                {% if watchlist.number == 3 %}#}
-{#                    <li class="page-item active" aria-current="page">#}
-{#                {% else %}#}
-{#                    <li class="page-item">#}
-{#                {% endif %}#}
-{#                <a class="page-link" href="{% url 'watchlist' 3 %}">3</a></li>#}
-{##}
-{#                {% if watchlist.number == 4 %}#}
-{#                    <li class="page-item active" aria-current="page">#}
-{#                {% else %}#}
-{#                    <li class="page-item">#}
-{#                {% endif %}#}
-{#                <a class="page-link" href="{% url 'watchlist' 4 %}">4</a></li>#}
-{##}
-{#                {% if watchlist.number == 5 %}#}
-{#                    <li class="page-item active" aria-current="page">#}
-{#                {% else %}#}
-{#                    <li class="page-item">#}
-{#                {% endif %}#}
-{#                <a class="page-link" href="{% url 'watchlist' 1 %}">5</a></li>#}
-{##}
-{#          </ul>#}
-{#        </nav>#}
-{#        </div>#}
-
         <div class="watchlist_title align-items-center">
             <form id="title_form">
                 <label for="new_title"><b>Watchlist Title: </b>&nbsp</label>
             <input type="text" id="new_title" value="{{ watchlist.title }} &nbsp">
-{#            <text class="form-control" id="new_title" placeholder="{{ title }}">#}
-{#            <input type="submit" value="Update"#}
             <input type="button" value=" Update "
                    onclick="titleUpdate({{ watchlist.id }})" class="btn-primary btn-sm" />
             </form>
         </div>
 
         <div class="watchlist_item">
-            <form method="post" action="{% url 'watchlistitem' watchlist.id %}">
+            <form method="post">
                 {% csrf_token %}
                 <label for="symbol"><b>Symbol to add to Watchlist: </b>&nbsp</label>
                 {{ watchlistitem_form }}
                 <input type="submit" value=" Add " class="btn-sm btn-primary" />
-{#                    onclick="{% url 'watchlistitem' watchlist.id %}" class="btn-primary btn-sm" />#}
             </form>
         </div>
 

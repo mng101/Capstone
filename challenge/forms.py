@@ -53,18 +53,17 @@ class TransactionForm(ModelForm):
             "quantity": "Quantity:",
         }
 
+
 class WatchlistItemForm(ModelForm):
     class Meta:
         model = WatchlistItem
-        fields = ['symbol',]
+        fields = ['symbol', ]
         labels = {
             "symbol": "",
         }
 
     def clean_symbol(self):
         cleaned_data = self.cleaned_data.get('symbol')
-        # TODO - Check less than 10 items in the watchlist
-        # TODO - Check the symbol to be added does not alreaty exist in the watchlist.
         try:
             w1 = WatchlistItem.objects.get(user=self.initial['user_id'],
                                            number__number=self.initial['number_id'],
@@ -79,5 +78,12 @@ class WatchlistItemForm(ModelForm):
         # else:
         return cleaned_data
 
-    # def clean(self):
-    #     print("In clean")
+    def clean(self):
+        # TODO - Check less than 10 items in the watchlist
+        cleaned_data = super().clean()
+        c = WatchlistItem.objects.filter(user=self.initial['user_id'],
+                                         number__number=self.initial['number_id'], ).count()
+        if c >= 10:
+            raise forms.ValidationError("Maximum of 10 Watchlist items reached. Try another Watchlist")
+
+        return cleaned_data
