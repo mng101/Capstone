@@ -79,6 +79,9 @@ class Transaction (models.Model):
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     txn_date = models.DateField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-txn_date", "stock_symbol"]
+
     def __str__(self):
         return f"{self.stock_symbol} {self.activity} - {self.quantity} {self.price} - {self.txn_date}"
 

@@ -36,7 +36,7 @@
                 <li><a href="{% url 'markets' %}" class="nav-link px-2 link-dark">Markets Today</a></li>
                 {%  if user.is_authenticated %}
                     <li><a href="{% url 'dashboard' %}" class="nav-link px-2 link-dark">Dashboard</a></li>
-                    <li><a href="#" class="nav-link px-2 link-dark">Txn History</a></li>
+                    <li><a href="{% url 'history' %}" class="nav-link px-2 link-dark">Txn History</a></li>
                     <li><a href="{% url 'transaction' %}" class="nav-link px-2 link-dark">Trading</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">

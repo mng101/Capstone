@@ -79,7 +79,7 @@ class WatchlistItemForm(ModelForm):
         return cleaned_data
 
     def clean(self):
-        # TODO - Check less than 10 items in the watchlist
+        # Check less than 10 items in the watchlist
         cleaned_data = super().clean()
         c = WatchlistItem.objects.filter(user=self.initial['user_id'],
                                          number__number=self.initial['number_id'], ).count()

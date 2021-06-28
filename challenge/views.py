@@ -3,6 +3,7 @@ import json
 import math
 from decimal import Decimal
 
+from django.db.models import F
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -16,10 +17,6 @@ from . import forms
 from . import utils
 from .forms import AccountForm, TransactionForm, WatchlistItemForm
 from .models import Account, Holding, Watchlist, WatchlistItem, Transaction
-
-
-# Import django settings to access the Rapid API Key
-
 
 # Create your views here.
 
@@ -39,12 +36,12 @@ class SignUp(CreateView):
     template_name = "challenge/signup.html"
 
 
-class TestPageView(TemplateView):
-    template_name = 'challenge/test.html'
+# class TestPageView(TemplateView):
+#     template_name = 'challenge/test.html'
 
 
 class ThanksPageView(TemplateView):
-    template_name = 'challenge/thanks.html'
+    template_name = 'challenge/logout.html'
 
 
 class MarketsPageView(TemplateView):
@@ -182,43 +179,6 @@ def updatetitle(request, pk):
     return JsonResponse({"message": "Update successful"}, status=200)
 
 
-# TODO - Delete the following view if it is not required
-#
-# class WatchlistItemCreateView(LoginRequiredMixin, CreateView):
-#     model = WatchlistItem
-#     form_class = WatchlistItemForm
-#     template_name = 'challenge/watchlist.html'
-#
-#     login_url = 'login'
-#
-#     def get_initial(self):
-#         print("Get Initial")
-#         return {'number_id': self.kwargs['pk'],
-#                 'user_id': self.request.user.id, }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         print("Get Context Data")
-#
-#     # def get_template_names(self):
-#     #     print("get_template_names")
-#
-#     def form_valid(self, form):
-#         form.instance.user_id = self.request.user.id
-#         form.instance.number_id = self.kwargs['pk']
-#         symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
-#         form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
-#                                           Decimal(symbol_quote['result'][0]['ask'])) / 2)
-#         form.instance.date_added = datetime.date.today()
-#         form.instance.valid = True
-#         return super(WatchlistItemCreateView, self).form_valid(form)
-
-    # def form_invalid(self, form):
-    #     # messages.error(self.request, self.error_message)
-    #     # return super().form_invalid(form)
-    #     return render(self.request, "challenge/watchlist.html")
-
-
 # TODO - WatchlistItemDeleteView
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
@@ -231,3 +191,14 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         form.instance.user_id = self.request.user
         form.instance.valid = False
         return super(TransactionCreateView, self).form_valid(form)
+
+
+class TransactionListView(LoginRequiredMixin, ListView):
+    model = Transaction
+    login_url = 'login'
+    context_object_name = "txn_history"
+
+    def get_queryset(self):
+        # Get the list of transactions for the User
+        s1 = Transaction.objects.filter(user=self.request.user).annotate(value=F('price') * F('quantity'))
+        return s1
