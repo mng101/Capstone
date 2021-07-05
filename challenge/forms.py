@@ -45,13 +45,18 @@ class AccountForm(ModelForm):
 class TransactionForm(ModelForm):
     class Meta:
         model = Transaction
-        fields = ['stock_symbol', 'activity', 'quantity']
+        fields = ['stock_symbol', 'activity', 'quantity', 'price', 'amount', ]
 
         labels = {
             "stock_symbol": "Symbol:",
             "activity": "Action:",
             "quantity": "Quantity:",
         }
+
+        widgets = {
+            'activity': forms.Select(attrs = {'onchange': 'testFunction(this.value)'})
+        }
+
 
 
 class WatchlistItemForm(ModelForm):

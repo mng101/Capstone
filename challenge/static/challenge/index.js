@@ -1,6 +1,15 @@
 console.log('JavaScript loaded');
 hideAbout();
 
+document.addEventListener('DOMContentLoaded', function() {
+    page = location.pathname
+    if (page === "/transaction/") {
+        document.getElementById("div_id_quantity").style.display = "none";
+        document.getElementById("div_id_price").style.display = "none";
+        document.getElementById("div_id_amount").style.display = "none";
+    }
+})
+
 // getCookie function from Django documentation
 function getCookie(name) {
     let cookieValue = null;
@@ -64,4 +73,18 @@ function showAbout() {
 
 function hideAbout() {
     document.getElementById("about").style.display = "none";
+}
+
+function testFunction(value) {
+    console.log("Activity Update")
+    console.log("Value entered is ", value)
+    if (value === 'D') {
+        document.getElementById("div_id_quantity").style.display = "none";
+        document.getElementById("div_id_price").style.display = "none";
+        document.getElementById("div_id_amount").style.display = "block";
+    } else {
+        document.getElementById("div_id_quantity").style.display = "block";
+        document.getElementById("div_id_price").style.display = "block";
+        document.getElementById("div_id_amount").style.display = "block";
+    }
 }

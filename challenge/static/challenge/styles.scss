@@ -69,6 +69,11 @@
   cursor: pointer;
 }
 
+#div_id_quantity, #div_id_price, #div_id_amount {
+  display: none;
+  font-size: 75%;
+}
+
 .themed-container {
   padding: .75rem;
   margin-bottom: .75rem;

@@ -73,11 +73,13 @@ class Transaction (models.Model):
         ('D', 'Dividend'),
     )
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="transactions")
-    stock_symbol = models.CharField(max_length=6, null=False)
+    # stock_symbol = models.CharField(max_length=6, null=False)
+    stock_symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
     activity = models.CharField(max_length=1, choices=ACTIVITIES)
     quantity = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     txn_date = models.DateField(auto_now_add=True)
+    amount = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
 
     class Meta:
         ordering = ["-txn_date", "stock_symbol"]
