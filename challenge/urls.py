@@ -26,11 +26,11 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("markets/", views.MarketsPageView.as_view(), name="markets"),
     path("dashboard/", views.HoldingListView.as_view(), name="dashboard"),
-    # path("test/", views.TestPageView.as_view(), name="test"),
     path("thanks/", views.ThanksPageView.as_view(), name="thanks"),
     path("contact/<int:pk>", views.AccountUpdateView.as_view(), name="contact"),
     path("watchlist/<int:pk>", views.WatchlistView.as_view(), name="watchlist"),
     path("transaction/", views.TransactionCreateView.as_view(), name="transaction"),
     path("history/", views.TransactionListView.as_view(), name="history"),
     path("updatetitle/<int:pk>", views.updatetitle, name="updatetitle"),
+    # path("test/", views.TestPageView.as_view(), name="test"),
 ]

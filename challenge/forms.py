@@ -37,7 +37,7 @@ class AccountForm(ModelForm):
 
         def clean_first_name(self):
             cleaned_data = self.cleaned_data.get('first_name')
-            # Explicit account.save() is no required
+            # Explicit account.save() is not required
             # account.save()
             return cleaned_data
 
@@ -45,17 +45,42 @@ class AccountForm(ModelForm):
 class TransactionForm(ModelForm):
     class Meta:
         model = Transaction
-        fields = ['stock_symbol', 'activity', 'quantity', 'price', 'amount', ]
+        fields = ['stock_symbol', 'activity', 'quantity', 'amount', ]
 
         labels = {
             "stock_symbol": "Symbol:",
             "activity": "Action:",
             "quantity": "Quantity:",
+            "amount": "Amount",
         }
 
         widgets = {
-            'activity': forms.Select(attrs = {'onchange': 'testFunction(this.value)'})
+        #     'stock_symbol': forms.Select(attrs = {'cols': 25}),
+            'activity': forms.Select(attrs = {'onchange': 'recordActivity(this.value)'})
         }
+
+    def clean_quantity(self):
+        quantity_entered = self.cleaned_data.get('quantity')
+
+        if (self.cleaned_data.get('activity') in ('B', 'S')) \
+            and (quantity_entered < 1):
+            raise forms.ValidationError("Quantity must be more than 0 for Buy and Sell orders")
+        return cleaned_data
+
+    def clean(self):
+        # Check Transaction Validity
+        # 1. Cash exists to cover a Buy transaction
+        # 2. Sell transactions are only permitted for Symbols and Quantity in the portfolio
+        # 3. Dividends are only permitted for Symbols in the portfolio
+        # 4. Maximum of 10 trades (Buy/Sell) permitted in a 10 day interval
+        #
+        print ("In form clean")
+        cleaned_data = super().clean()
+
+        # if c >= 10:
+        #     raise forms.ValidationError("Maximum of 10 Watchlist items reached. Try another Watchlist")
+
+        return cleaned_data
 
 
 

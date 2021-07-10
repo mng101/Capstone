@@ -69,7 +69,11 @@ class HoldingListView(ListView):
 
     def get_queryset(self):
         # Get the list of symbols in the portfolio and format the list suitable for RapidAPI
-        s1 = Holding.objects.filter(user=self.request.user).values_list('stock_symbol', flat=True)
+        s1 = Holding.objects.filter(user=self.request.user).values_list('stock_symbol__symbol', flat=True)
+        # If there are no Holdings, stop processing
+        if len(s1) == 0:
+            return None
+
         sym_list = ','.join(s1)
 
         # Get quotes for all the symbols in the portfolio.
@@ -184,13 +188,22 @@ def updatetitle(request, pk):
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
     form_class = TransactionForm
+    success_url = reverse_lazy("dashboard")
 
     login_url = 'login'
 
     def form_valid(self, form):
-        form.instance.user_id = self.request.user
+        # form.instance.user_id = self.request.user
+        self.object = form.save(commit=False)
+        form.instance.user = self.request.user
+
         form.instance.valid = False
-        return super(TransactionCreateView, self).form_valid(form)
+        return super(TransactionCreateView, self).form_invalid(form)
+
+    def form_invalid(self, form):
+        print("In form_invalid")
+        messages.error(self.request, form.errors)
+        return super().form_invalid(form)
 
 
 class TransactionListView(LoginRequiredMixin, ListView):

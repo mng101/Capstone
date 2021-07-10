@@ -57,6 +57,11 @@ def get_quotes(request, symbols):
     # Make API calls to retreive quotes for securities of interest
     #
     sym_list = symbols
+
+    # If sym_list is empty, return None
+    if len(sym_list) == 0:
+        return None
+
     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes"
     querystring = {"region": "CA", "symbols": sym_list}
 

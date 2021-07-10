@@ -71,6 +71,14 @@
   cursor: pointer;
 }
 
+#id_stock_symbol {
+  width: 550px;
+}
+
+#div_id_quantity, #div_id_amount {
+  display: none;
+}
+
 .themed-container {
   padding: 0.75rem;
   margin-bottom: 0.75rem;

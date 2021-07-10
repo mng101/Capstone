@@ -40,7 +40,7 @@
 
             {%  for item in object_list %}
                 <div class="row portfolio-holding-row gx-2">
-                    <div class="col-md-2">{{ item.stock_symbol }}<br>{{ item.longName }}</div>
+                    <div class="col-md-2">{{ item.symbol }}<br>{{ item.longName }}</div>
                     <div class="col-md-1 text-end">{{ item.no_of_shares_owned }}</div>
                     <div class="col-md-1 text-end">{{ item.avg_price|currency }}</div>
                     <div class="col-md-1 text-end">{{ item.total_cost|currency }}</div>

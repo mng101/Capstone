@@ -47,7 +47,8 @@ class TSXStock(models.Model):
 
 class Holding(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name='holdings')
-    stock_symbol = models.CharField(max_length=6, null=False)
+    # stock_symbol = models.CharField(max_length=6, null=False)
+    stock_symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
     company_name = models.CharField(max_length=64)
     no_of_shares_owned = models.IntegerField(default=0)
     # no_of_shared_owned is totaled from all the trades for this security
@@ -167,6 +168,7 @@ def create_update_holding(sender, instance, created, **kwargs):
                 # implies a trade profit, else the trade loss
                 holding.total_cost -= (instance.quantity * instance.price)
 
+
             holding.save()
 
         except Holding.DoesNotExist:
@@ -180,7 +182,10 @@ def create_update_holding(sender, instance, created, **kwargs):
         account = Account.objects.get(user=instance.user)
         if (instance.activity == 'B'):
             account.cash -= (instance.quantity * instance.price)
-        else:
+        elif (instance.activity == 'S'):
             account.cash += (instance.quantity * instance.price)
+        else:
+            account.cash += instance.amount
+
         account.save()
         print('Account Update')
