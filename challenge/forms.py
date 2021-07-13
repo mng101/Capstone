@@ -95,8 +95,11 @@ class WatchlistItemForm(ModelForm):
     def clean_symbol(self):
         cleaned_data = self.cleaned_data.get('symbol')
         try:
+            # w1 = WatchlistItem.objects.get(user=self.initial['user_id'],
+            #                                number__number=self.initial['number_id'],
+            #                                symbol=cleaned_data.pk)
             w1 = WatchlistItem.objects.get(user=self.initial['user_id'],
-                                           number__number=self.initial['number_id'],
+                                           number=self.initial['number_id'],
                                            symbol=cleaned_data.pk)
         except WatchlistItem.DoesNotExist:
             w1 = None
@@ -111,8 +114,10 @@ class WatchlistItemForm(ModelForm):
     def clean(self):
         # Check less than 10 items in the watchlist
         cleaned_data = super().clean()
+        # c = WatchlistItem.objects.filter(user=self.initial['user_id'],
+        #                                  number__number=self.initial['number_id'], ).count()
         c = WatchlistItem.objects.filter(user=self.initial['user_id'],
-                                         number__number=self.initial['number_id'], ).count()
+                                         number=self.initial['number_id'], ).count()
         if c >= 10:
             raise forms.ValidationError("Maximum of 10 Watchlist items reached. Try another Watchlist")
 

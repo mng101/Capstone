@@ -138,8 +138,10 @@ class WatchlistView(LoginRequiredMixin, CreateView):
         context['watchlistitem_form'] = WatchlistItemForm()
 
         # Get the items in the Watchlist formatted as a list of dictionaries
+        # watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
+        #                                                number__number=self.kwargs['pk']).values()
         watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
-                                                       number__number=self.kwargs['pk']).values()
+                                                       number=self.kwargs['pk']).values()
         # Merge symlist with RapidAPI Quotes
         combined_list = utils.enrich(self.request, watchlist_items)
         # Add the price_change for each of the items
@@ -152,15 +154,20 @@ class WatchlistView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user_id = self.request.user.id
-        form.instance.number_id = self.kwargs['pk']
+        form.instance.number = self.kwargs['pk']
         symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
 
-        form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
-                                          Decimal(symbol_quote['result'][0]['ask'])) / 2)
+        if len(symbol_quote['result']) > 0:
+            form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
+                                              Decimal(symbol_quote['result'][0]['ask'])) / 2)
+            form.instance.date_added = datetime.date.today()
+            form.instance.valid = True
+        else:
+            form.instance.valid = False
+            raise forms.ValidationError("Quote data not available for this symbol. Try Another")
 
-        form.instance.date_added = datetime.date.today()
-        form.instance.valid = True
         return super().form_valid(form)
+
 
     def form_invalid(self, form):
         print("In form_invalid")
@@ -191,6 +198,21 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("dashboard")
 
     login_url = 'login'
+
+    def get_context_data(self, **kwargs):
+        context = super.get_context_data(**kwargs)
+        context["cash"] = Account.objects.get(user=self.request.user).cash
+        #
+        # Get the number of trades in the last 2 weeks
+        today = datetime.date.today()
+        start_date = today - datetime.timedelta(days=14)
+        Transaction.objects.filter(
+            user=self.request.user,
+        )
+
+
+        return context
+
 
     def form_valid(self, form):
         # form.instance.user_id = self.request.user
