@@ -11,4 +11,7 @@ register = template.Library()
 
 @register.filter()
 def currency(value):
-    return locale.currency(value, grouping=True)
+    if value:
+        return locale.currency(value, grouping=True)
+    else:
+        return locale.currency(0.00, grouping=True)

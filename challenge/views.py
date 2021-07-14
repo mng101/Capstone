@@ -16,7 +16,8 @@ from django.views.generic import (TemplateView, ListView, CreateView, UpdateView
 from . import forms
 from . import utils
 from .forms import AccountForm, TransactionForm, WatchlistItemForm
-from .models import Account, Holding, Watchlist, WatchlistItem, Transaction
+from .models import Account, TSXStock, Holding, Watchlist, WatchlistItem, Transaction
+
 
 # Create your views here.
 
@@ -67,43 +68,75 @@ class HoldingListView(ListView):
     model = Holding
     template_name = 'challenge/dashboard.html'
 
+    # def get_queryset(self):
+    #     # Get the list of symbols in the portfolio and format the list suitable for RapidAPI
+    #     s1 = Holding.objects.filter(user=self.request.user).values_list('stock_symbol__symbol', flat=True)
+    #     # If there are no Holdings, stop processing
+    #     if len(s1) == 0:
+    #         return None
+    #
+    #     sym_list = ','.join(s1)
+    #
+    #     # Get quotes for all the symbols in the portfolio.
+    #     p_quotes = utils.get_quotes(self.request, sym_list)
+    #
+    #     if p_quotes is not None:
+    #
+    #         # Get a list of holdings and convert to a list of dictionaries
+    #         h_list = Holding.objects.filter(user=self.request.user).values()
+    #
+    #         # Combine holdings and quotes into a consolidated list
+    #         c_list = []
+    #         for index, value in enumerate(h_list):
+    #             x = h_list[index].copy()
+    #             x.update(p_quotes['result'][index])
+    #             c_list.append(x)
+    #
+    #         # Add some calculated values to the combined list
+    #         for item in c_list:
+    #             item.update(
+    #                 {'avg_price': (item['total_cost'] / item['no_of_shares_owned']),
+    #                  # 'volume': (item['regularMarketVolume'] / 1000),
+    #                  'volume': '{:,}'.format(math.trunc(item['regularMarketVolume'] / 1000)),
+    #                  'market_value': (item['bid'] * item['no_of_shares_owned']),
+    #                  'change': (Decimal(item['bid'] * item['no_of_shares_owned']) - item['total_cost']),
+    #                  }
+    #             )
+    #         return c_list
+    #     else:
+    #         return None
+
     def get_queryset(self):
-        # Get the list of symbols in the portfolio and format the list suitable for RapidAPI
-        s1 = Holding.objects.filter(user=self.request.user).values_list('stock_symbol__symbol', flat=True)
-        # If there are no Holdings, stop processing
-        if len(s1) == 0:
-            return None
+        # Get the list of Portfolio Holdings and append with quotes from RapidAPI
+        # The list should be formatted as a list of dictionaries
+        # Combine the Holdings and Quotes into a consolidated list
 
-        sym_list = ','.join(s1)
+        c_list = []
 
-        # Get quotes for all the symbols in the portfolio.
-        p_quotes = utils.get_quotes(self.request, sym_list)
+        h_list = Holding.objects.filter(user=self.request.user).values()
+        for item in h_list:
+            symbol = TSXStock.objects.get(id=item['stock_symbol_id']).symbol
+            quote = utils.single_quote(self.request, symbol)
 
-        if p_quotes is not None:
+            # Combine the Holding and Quote
+            c = item.copy()
+            c.update(quote['result'][0])
 
-            # Get a list of holdings and convert to a list of dictionaries
-            h_list = Holding.objects.filter(user=self.request.user).values()
+            # Append the conbined object to a list
+            c_list.append(c)
 
-            # Combine holdings and quotes into a consolidated list
-            c_list = []
-            for index, value in enumerate(h_list):
-                x = h_list[index].copy()
-                x.update(p_quotes['result'][index])
-                c_list.append(x)
+        # Add some calculated values to the combined list
+        for item in c_list:
+            item.update(
+                {'avg_price': (item['total_cost'] / item['no_of_shares_owned']),
+                 # 'volume': (item['regularMarketVolume'] / 1000),
+                 'volume': '{:,}'.format(math.trunc(item['regularMarketVolume'] / 1000)),
+                 'market_value': (item['bid'] * item['no_of_shares_owned']),
+                 'change': (Decimal(item['bid'] * item['no_of_shares_owned']) - item['total_cost']),
+                 }
+            )
 
-            # Add some calculated values to the combined list
-            for item in c_list:
-                item.update(
-                    {'avg_price': (item['total_cost'] / item['no_of_shares_owned']),
-                     # 'volume': (item['regularMarketVolume'] / 1000),
-                     'volume': '{:,}'.format(math.trunc(item['regularMarketVolume'] / 1000)),
-                     'market_value': (item['bid'] * item['no_of_shares_owned']),
-                     'change': (Decimal(item['bid'] * item['no_of_shares_owned']) - item['total_cost']),
-                     }
-                )
-            return c_list
-        else:
-            return None
+        return c_list
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -142,13 +175,23 @@ class WatchlistView(LoginRequiredMixin, CreateView):
         #                                                number__number=self.kwargs['pk']).values()
         watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
                                                        number=self.kwargs['pk']).values()
-        # Merge symlist with RapidAPI Quotes
+        # Merge Watchlist Items with RapidAPI Quotes
         combined_list = utils.enrich(self.request, watchlist_items)
+
         # Add the price_change for each of the items
         for item in combined_list:
-            item.update(
-                {'price_change': (Decimal(item['ask']) - item['price_when_added']), }
-            )
+            try:
+                item.update(
+                    {'price_change': (Decimal(item['ask']) - item['price_when_added']), }
+                )
+            except KeyError:
+                # KeyError is a result of missing Quote data. The object will not contain the 'Symbol'
+                # Update the object with the Symbol retreived from TSXStock
+                symbol = TSXStock.objects.get(id=item['symbol_id']).symbol
+                item.update(
+                    {'symbol': symbol, }
+                )
+                messages.info(self.request, ("Market Data not available for ", symbol))
         context['watchlist_items'] = combined_list
         return context
 
@@ -159,7 +202,7 @@ class WatchlistView(LoginRequiredMixin, CreateView):
 
         if len(symbol_quote['result']) > 0:
             form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
-                                              Decimal(symbol_quote['result'][0]['ask'])) / 2)
+                                               Decimal(symbol_quote['result'][0]['ask'])) / 2)
             form.instance.date_added = datetime.date.today()
             form.instance.valid = True
         else:
@@ -167,7 +210,6 @@ class WatchlistView(LoginRequiredMixin, CreateView):
             raise forms.ValidationError("Quote data not available for this symbol. Try Another")
 
         return super().form_valid(form)
-
 
     def form_invalid(self, form):
         print("In form_invalid")
@@ -210,15 +252,12 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
             user=self.request.user,
         )
 
-
         return context
-
 
     def form_valid(self, form):
         # form.instance.user_id = self.request.user
         self.object = form.save(commit=False)
         form.instance.user = self.request.user
-
         form.instance.valid = False
         return super(TransactionCreateView, self).form_invalid(form)
 

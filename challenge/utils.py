@@ -52,18 +52,45 @@ def get_news_headlines(request):
         return None
 
 
+# def get_quotes(request, symbols):
+#     #
+#     # Make API calls to retreive quotes for securities of interest
+#     #
+#     sym_list = symbols
+#
+#     # If sym_list is empty, return None
+#     if len(sym_list) == 0:
+#         return None
+#
+#     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes"
+#     querystring = {"region": "CA", "symbols": sym_list}
+#
+#     headers = {
+#         'x-rapidapi-key': settings.X_RAPIDAPI_KEY,
+#         'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
+#     }
+#
+#     response = requests.request("GET", url, headers=headers, params=querystring)
+#
+#     if response.status_code == 200:
+#         # Deserialize the response to a python object
+#         json_data = json.loads(response.text)
+#         return json_data["quoteResponse"]
+#     else:
+#         return None
+
 def get_quotes(request, symbols):
     #
     # Make API calls to retreive quotes for securities of interest
     #
-    sym_list = symbols
-
-    # If sym_list is empty, return None
-    if len(sym_list) == 0:
-        return None
+    # sym_list = symbols
+    #
+    # # If sym_list is empty, return None
+    # if len(sym_list) == 0:
+    #     return None
 
     url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes"
-    querystring = {"region": "CA", "symbols": sym_list}
+    querystring = {"region": "CA", "symbols": symbols}
 
     headers = {
         'x-rapidapi-key': settings.X_RAPIDAPI_KEY,
@@ -79,33 +106,54 @@ def get_quotes(request, symbols):
     else:
         return None
 
+# def enrich(request, list):
+#     # Given a list of items (holdings, watchlist, etc), combine the list with quotes retreived
+#     # from RapidAPI
+#     #
+#
+#     symbols = []
+#     # for index, value in enumerate(list):
+#     #     # quote_list.append(TSXStock.objects.filter(id=value["symbol_id"]).values_list("symbol", flat=True))
+#     #     symbols.append(TSXStock.objects.get(id=value["symbol_id"]).symbol)
+#
+#     for item in list:
+#         # quote_list.append(TSXStock.objects.filter(id=value["symbol_id"]).values_list("symbol", flat=True))
+#         symbols.append(TSXStock.objects.get(id=item["symbol_id"]).symbol)
+#
+#     sym_list = ','.join(symbols)
+#
+#     quotes = utils.get_quotes(request, sym_list)
+#
+#     combined_list = []
+#     for index, value in enumerate(list):
+#         x = list[index].copy()
+#         x.update(quotes['result'][index])
+#         combined_list.append(x)
+#
+#     return combined_list
+
 
 def enrich(request, list):
     # Given a list of items (holdings, watchlist, etc), combine the list with quotes retreived
     # from RapidAPI
     #
-
-    symbols = []
-    # for index, value in enumerate(list):
-    #     # quote_list.append(TSXStock.objects.filter(id=value["symbol_id"]).values_list("symbol", flat=True))
-    #     symbols.append(TSXStock.objects.get(id=value["symbol_id"]).symbol)
+    combined_list = []
 
     for item in list:
-        # quote_list.append(TSXStock.objects.filter(id=value["symbol_id"]).values_list("symbol", flat=True))
-        symbols.append(TSXStock.objects.get(id=item["symbol_id"]).symbol)
+        symbol = TSXStock.objects.get(id=item['symbol_id']).symbol
+        quote = utils.get_quotes(request, symbol)
 
-    sym_list = ','.join(symbols)
+        c = item.copy()
+        try:
+            c.update(quote['result'][0])
+        except IndexError:
+            # Quote could not be retreived for this symbol. The price change since the symbol was added
+            # to the Watchlist will not be displayed
+            pass
 
-    quotes = utils.get_quotes(request, sym_list)
-
-    combined_list = []
-    for index, value in enumerate(list):
-        x = list[index].copy()
-        x.update(quotes['result'][index])
-        combined_list.append(x)
+        combined_list.append(c)
 
     return combined_list
-
 
 def single_quote(request, symbol):
     # Get quote for a single symbol and return the result
