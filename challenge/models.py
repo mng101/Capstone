@@ -28,8 +28,7 @@ class Account(models.Model):
 
 
 # Symbol list for TSX Constituents as of Jan 2021. Transaction entry will be validated against the
-# symbols listed here. This model was added after the Holding model, which is why the stock_symbol in
-# Holding model is not a ForeignKey
+# symbols listed here.
 #
 class TSXStock(models.Model):
     symbol = models.CharField(max_length=10, null=False)
@@ -47,8 +46,7 @@ class TSXStock(models.Model):
 
 class Holding(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name='holdings')
-    # stock_symbol = models.CharField(max_length=6, null=False)
-    stock_symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
+    symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
     company_name = models.CharField(max_length=64)
     no_of_shares_owned = models.IntegerField(default=0)
     # no_of_shared_owned is totaled from all the trades for this security
@@ -56,10 +54,10 @@ class Holding(models.Model):
     # total_cost is the sum total of the cost of all related transactions
 
     class Meta:
-        ordering = ["stock_symbol"]
+        ordering = ["symbol"]
 
     def __str__(self):
-        return f"{self.stock_symbol} - {self.company_name} - {self.no_of_shares_owned} - {self.total_cost}"
+        return f"{self.symbol} - {self.company_name} - {self.no_of_shares_owned} - {self.total_cost}"
 
 
 # The Transaction model will hold the trades executed by the User. Trades will be settled immediately at the mid
@@ -74,8 +72,7 @@ class Transaction (models.Model):
         ('D', 'Dividend'),
     )
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="transactions")
-    # stock_symbol = models.CharField(max_length=6, null=False)
-    stock_symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
+    symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
     activity = models.CharField(max_length=1, choices=ACTIVITIES)
     quantity = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
@@ -84,10 +81,10 @@ class Transaction (models.Model):
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
 
     class Meta:
-        ordering = ["-txn_date", "stock_symbol"]
+        ordering = ["-txn_date", "symbol"]
 
     def __str__(self):
-        return f"{self.stock_symbol} {self.activity} - {self.quantity} {self.price} - {self.txn_date}"
+        return f"{self.symbol} {self.activity} - {self.quantity} {self.price} - {self.txn_date}"
 
 
 class Watchlist(models.Model):
@@ -112,12 +109,12 @@ class WatchlistItem(models.Model):
         ordering = ["symbol"]
 
     def __str__(self):
-        # return f"{self.user} WL# {self.number} - {self.symbol} - {self.date_added}"
         return f"{self.user} WL# {self.number} - {self.symbol}"
 
     def get_absolute_url(self):
         # return reverse("watchlist", kwargs={'pk':self.number_id})
-        return reverse("watchlist", kwargs={'pk':self.number.number})
+        # return reverse("watchlist", kwargs={'pk':self.number.number})
+        return reverse("watchlist", kwargs={'pk':self.number})
 
 
 '''
@@ -157,7 +154,7 @@ def create_update_holding(sender, instance, created, **kwargs):
     if created:
         try:
             # Create or Update Holding
-            holding = Holding.objects.get(stock_symbol=instance.stock_symbol)
+            holding = Holding.objects.get(symbol=instance.symbol)
             if (instance.activity == "B"):
                 # Adding to existing holding
                 holding.no_of_shares_owned += instance.quantity
@@ -176,7 +173,7 @@ def create_update_holding(sender, instance, created, **kwargs):
 
         except Holding.DoesNotExist:
             # Create a new Holding object
-            Holding.objects.create(user=instance.user, stock_symbol=instance.stock_symbol,
+            Holding.objects.create(user=instance.user, symbol=instance.symbol,
                                    no_of_shares_owned=instance.quantity,
                                    total_cost = (instance.quantity * instance.price))
         print('Holding Update')

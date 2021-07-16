@@ -20,7 +20,7 @@
         {% if txn_history %}
             {%  for entry in txn_history %}
                 <div class="row portfolio-holding-row gx-2">
-                    <div class="col-md-2">{{ entry.stock_symbol }}</div>
+                    <div class="col-md-2">{{ entry.symbol }}</div>
                     <div class="col-md-1 text-end">{{ entry.txn_date|date:'d-m-y' }}</div>
                     <div class="col-md-1 text-end">{{ entry.get_activity_display }}</div>
                     <div class="col-md-1 text-end">{{ entry.price|currency }}</div>

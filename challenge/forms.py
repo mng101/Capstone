@@ -45,17 +45,16 @@ class AccountForm(ModelForm):
 class TransactionForm(ModelForm):
     class Meta:
         model = Transaction
-        fields = ['stock_symbol', 'activity', 'quantity', 'amount', ]
+        fields = ['symbol', 'activity', 'quantity', 'amount', ]
 
         labels = {
-            "stock_symbol": "Symbol:",
+            "symbol": "Symbol:",
             "activity": "Action:",
             "quantity": "Quantity:",
             "amount": "Amount",
         }
 
         widgets = {
-        #     'stock_symbol': forms.Select(attrs = {'cols': 25}),
             'activity': forms.Select(attrs = {'onchange': 'recordActivity(this.value)'})
         }
 

@@ -90,10 +90,10 @@ function recordActivity(value) {
         // document.getElementById("id_quantity").setAttribute("required", "required")
         document.getElementById("div_id_quantity").style.display = "block"
         document.getElementById("id_quantity").value = ""
-        // document.getElementById("div_id_amount").style.display = "none"
+        document.getElementById("div_id_amount").style.display = "none"
     }
     if (value === 'D') {
-        // document.getElementById("div_id_quantity").style.display = "none"
+        document.getElementById("div_id_quantity").style.display = "none"
         document.getElementById("div_id_amount").style.display = "block"
         document.getElementById("id_amount").value=""
     }
