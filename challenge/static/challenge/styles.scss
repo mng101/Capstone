@@ -73,7 +73,7 @@
   width: 550px;
 }
 
-#div_id_quantity, #div_id_amount {
+#div_id_quantity, #div_id_price, #div_id_amount {
   display: none
 }
 
@@ -117,4 +117,10 @@
   border-collapse: collapse;
   padding: 5px;
   margin: 0;
+}
+
+.my-0 {
+  margin-top: 0!important;
+  margin-bottom: 0!important;
+  font-size: 85%;
 }

@@ -27,7 +27,6 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # messages.info(self.request, "hello http://example.com")
         return context
 
 
@@ -125,8 +124,6 @@ class WatchlistView(LoginRequiredMixin, CreateView):
         context['watchlistitem_form'] = WatchlistItemForm()
 
         # Get the items in the Watchlist formatted as a list of dictionaries
-        # watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
-        #                                                number__number=self.kwargs['pk']).values()
         watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
                                                        number=self.kwargs['pk']).values()
         # Merge Watchlist Items with RapidAPI Quotes
@@ -195,6 +192,11 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
 
     login_url = 'login'
 
+    def get_form_kwargs(self):
+        kwargs = super(TransactionCreateView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["cash"] = Account.objects.get(user=self.request.user).cash
@@ -217,7 +219,7 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         form.instance.user = self.request.user
         form.instance.valid = False
-        return super(TransactionCreateView, self).form_invalid(form)
+        return super().form_invalid(form)
 
     def form_invalid(self, form):
         print("In form_invalid")
@@ -234,3 +236,25 @@ class TransactionListView(LoginRequiredMixin, ListView):
         # Get the list of transactions for the User
         s1 = Transaction.objects.filter(user=self.request.user).annotate(value=F('price') * F('quantity'))
         return s1
+
+
+@login_required
+def market_quote(request, pk):
+    try:
+        s = TSXStock.objects.get(id=pk)
+    except TSXStock.DoesNotExist:
+        return JsonResponse({
+            "error": "Invalid Symbol"
+        }, status=404)
+
+    if request.method == "GET":
+        symbol = s.symbol
+        quote = utils.get_quotes(request, symbol)
+        if quote is not None:
+            return JsonResponse(quote['result'][0], safe=False)
+        else:
+            return None
+    else:
+        return JsonResponse({
+            "error": "GET request required"
+        }, status=400)
