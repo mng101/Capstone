@@ -12,11 +12,11 @@
           <div class="col themed-grid-col">Cash Balance</div>
           <div class="col themed-grid-col">Investments</div>
           <div class="col themed-grid-col">Portfolio Total</div>
-          <div class="col themed-grid-col">Trades Last 5 Days</div>
+          <div class="col themed-grid-col">Trades Last 14 Days</div>
           <div class="col themed-grid-col">{{ account.cash|currency }}</div>
           <div class="col themed-grid-col">{{ investments|currency }}</div>
           <div class="col themed-grid-col">{{ portfolio_total|currency }}</div>
-          <div class="col themed-grid-col"><code>.col</code> with <code>.gx-4</code> gutters</div>
+          <div class="col themed-grid-col">{{ txn_count }}</div>
         </div>
 
         <br>

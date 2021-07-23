@@ -78,6 +78,9 @@ class Transaction (models.Model):
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     # txn_date = models.DateField(auto_now_add=True)
     txn_date = models.DateField()
+    #
+    # The amount field is required to capture divident transactions where both the price and quantity
+    # fields are '0'
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
 
     class Meta:

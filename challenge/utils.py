@@ -6,6 +6,7 @@ from django.conf import settings
 from . import utils
 import requests
 import json
+import datetime
 
 
 def get_market_summary(request):
@@ -163,3 +164,16 @@ def single_quote(request, symbol):
     s1.append(symbol)
     quote = utils.get_quotes(request, s1)
     return quote
+
+def get_txn_count(user, interval):
+    # Get the number of Buy and Sell transactions for the user during the time interval
+    # Note: Filtering the DateTimeField with dates will not include items on the last date
+    #
+    today = datetime.date.today()
+    start_date = today - datetime.timedelta(days=interval)
+    end_date = today + datetime.timedelta(days=1)
+    txn_count = Transaction.objects.filter(user=user,
+                                           txn_date__range=(start_date, end_date))\
+                                           .exclude (activity="D")\
+                                           .count()
+    return txn_count

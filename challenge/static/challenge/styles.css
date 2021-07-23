@@ -75,7 +75,7 @@
   width: 550px;
 }
 
-#div_id_quantity, #div_id_price, #div_id_amount {
+#div_id_quantity, #div_id_price, #div_id_amount, #market_data {
   display: none;
 }
 

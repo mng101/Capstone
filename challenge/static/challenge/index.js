@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const a = document.getElementById("id_activity").value
             if (["B", "S"].indexOf(a) > -1) {
                 document.getElementById("div_id_quantity").style.display = "block"
+                document.getElementById("div_id_price").style.display = "block"
+                document.getElementById("id_price").readOnly = true
+                document.getElementById("div_id_amount").style.display = "block"
+                document.getElementById("id_amount").readOnly = true
             } else if (a === "D") {
                 document.getElementById("div_id_amount").style.display = "block"
             }
@@ -87,20 +91,56 @@ function hideAbout() {
 //
 // }
 
+function show_buySell_elem() {
+    // Display the quantity, price and amount field. Mark price and amount as readOnly
+    // Price and amount field will be populated from the stock quote
+    document.getElementById("div_id_quantity").style.display = "block"
+    document.getElementById("id_quantity").value = ""
+    //
+    document.getElementById("div_id_price").style.display = "block"
+    document.getElementById("id_price").readOnly = true
+    document.getElementById("div_id_amount").style.display = "block"
+    document.getElementById("id_amount").readOnly = true
+    //
+    document.getElementById("market_data").style.display = "block"
 
+    // Add eventlistener to trigger transaction process on focusout
+    document.getElementById("id_quantity").addEventListener('focusout', function() {
+        processTransaction()
+    })
+}
+
+function show_dividend_elem() {
+    document.getElementById("div_id_quantity").style.display = "none"
+    document.getElementById("id_quantity").value="0.00"
+    document.getElementById("div_id_price").style.display = "none"
+    document.getElementById("id_price").value="0.00"
+    //
+    document.getElementById("div_id_amount").style.display = "block"
+    document.getElementById("id_amount").value=""
+    document.getElementById("id_amount").readOnly = false
+
+}
 
 function recordActivity(value) {
     console.log("Activity Selected: ", value)
     if (["B", "S"].indexOf(value) > -1) {
-        // Display the quantity, price and amount field. Mark price and amount as readOnly
-        // Price and amount field will be populated from the stock quote
-        document.getElementById("div_id_quantity").style.display = "block"
-        document.getElementById("id_quantity").value = ""
+        // // Display the quantity, price and amount field. Mark price and amount as readOnly
+        // // Price and amount field will be populated from the stock quote
+        // document.getElementById("div_id_quantity").style.display = "block"
+        // document.getElementById("id_quantity").value = ""
+        // //
+        // document.getElementById("div_id_price").style.display = "block"
+        // document.getElementById("id_price").readOnly = true
+        // document.getElementById("div_id_amount").style.display = "block"
+        // document.getElementById("id_amount").readOnly = true
         //
-        document.getElementById("div_id_price").style.display = "block"
-        document.getElementById("id_price").readOnly = true
-        document.getElementById("div_id_amount").style.display = "block"
-        document.getElementById("id_amount").readOnly = true
+        // // Add eventlistener to trigger transaction process on focusout
+        // document.getElementById("id_quantity").addEventListener('focusout', function() {
+        //     processTransaction()
+        // })
+
+        show_buySell_elem()
 
         // Get the symbol selected by the user
         const sym_id = document.getElementById("id_symbol").value
@@ -135,13 +175,16 @@ function recordActivity(value) {
     }
 
     if (value === 'D') {
+
+        show_dividend_elem()
+
         // document.getElementById("div_id_quantity").style.display = "none"
         // document.getElementById("id_quantity").value=""
         // document.getElementById("div_id_price").style.display = "none"
 
-        document.getElementById("div_id_amount").style.display = "block"
-        document.getElementById("id_amount").value=""
-        document.getElementById("id_amount").readOnly = false
+        // document.getElementById("div_id_amount").style.display = "block"
+        // document.getElementById("id_amount").value=""
+        // document.getElementById("id_amount").readOnly = false
 
         // Add eventlistener to trigger dividend process on focusout
         // document.getElementById("id_amount").addEventListener('focusout', function() {
@@ -163,6 +206,8 @@ function process_quote(data) {
     console.log('In process quote')
 
     // Populate the quote data on the page
+    bidask = data.bid + " - " + data.ask
+    document.getElementById("bid_ask").innerHTML = bidask
     document.getElementById("day_range").innerHTML = data.regularMarketDayRange
     document.getElementById("volume").innerHTML = data.regularMarketVolume
     document.getElementById("div_yield").innerHTML = data.dividendYield
@@ -170,4 +215,43 @@ function process_quote(data) {
 
     const tp = data.targetPriceLow + " - " + data.targetPriceHigh
     document.getElementById("target_price").innerHTML = tp
+
+    price = ((data.bid + data.ask)/2).toFixed(2)
+    document.getElementById("id_price").value = price
+}
+
+function processTransaction() {
+    activity = document.getElementById("id_activity").value
+    qty = document.getElementById("id_quantity").value
+    price = document.getElementById("id_price").value
+
+    amount = (qty * price).toFixed(2)
+    document.getElementById("id_amount").value = amount
+
+    // x = new Intl.NumberFormat('en-US',
+    //     {style: 'currency', currency: 'USD'}
+    //     ).format(amount)
+    //
+    // document.getElementById("this_txn").innerHTML = x
+    //
+    // // Get the cash before the transaction and convert it into a numeric variable
+    // cashBefore = document.getElementById("cash_before").innerHTML
+    // cashBefore = cashBefore.replace("$", "")
+    // cashBefore = cashBefore.replace(",", "")
+    //
+    // cash = Number(cashBefore)
+    //
+    // if (activity === "B") {
+    //     balance = (cash - amount).toFixed(2)
+    // } else {
+    //     // This is a sell or dividend transaction
+    //     balance = (cash + amount).toFixed(2)
+    // }
+    //
+    // if (balance < 0 ) {
+    //     alert("Insufficient funds to cover this transaction")
+    // } else {
+    //     document.getElementById("cash_after").innerHTML = new Intl.NumberFormat('en-US',
+    //     {style: 'currency', currency: 'USD'})
+    // }
 }

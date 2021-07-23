@@ -102,6 +102,7 @@ class HoldingListView(ListView):
                 investments += (h['no_of_shares_owned'] * h['bid'])
         context["investments"] = investments
         context["portfolio_total"] = (context["account"].cash + Decimal(investments))
+        context["txn_count"] = utils.get_txn_count(self.request.user, 14)
         return context
 
 
@@ -194,32 +195,24 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(TransactionCreateView, self).get_form_kwargs()
+        kwargs = super(TransactionCreateView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user})
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["cash"] = Account.objects.get(user=self.request.user).cash
-        #
-        # Get the number of trades in the last 2 weeks (14 days)
-        # Note: Filtering the DateTimeField with dates will not include items on the last date
-        #
-        today = datetime.date.today()
-        start_date = today - datetime.timedelta(days=14)
-        end_date = today + datetime.timedelta(days=1)
-        context["txn_count"] = Transaction.objects.filter(user=self.request.user,
-                                                          txn_date__range=(start_date, end_date)).count()
-
+        context["txn_count"] = utils.get_txn_count(self.request.user, 14)
         context["holding_count"] = Holding.objects.filter(user=self.request.user).count()
-
         return context
 
     def form_valid(self, form):
         # form.instance.user_id = self.request.user
-        self.object = form.save(commit=False)
+        # self.object = form.save(commit=False)
         form.instance.user = self.request.user
-        form.instance.valid = False
-        return super().form_invalid(form)
+        form.instance.txn_date = datetime.date.today()
+        form.instance.valid = True
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         print("In form_invalid")
