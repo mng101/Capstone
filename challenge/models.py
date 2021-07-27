@@ -1,8 +1,9 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -80,7 +81,7 @@ class Transaction (models.Model):
     # txn_date = models.DateField(auto_now_add=True)
     txn_date = models.DateField()
     #
-    # The amount field is required to capture divident transactions where both the price and quantity
+    # The amount field is required to capture dividend transactions where both the price and quantity
     # fields are '0'
     amount = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
 

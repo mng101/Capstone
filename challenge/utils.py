@@ -1,12 +1,11 @@
-from django.db.models import Count, Case, When, BooleanField, Value
-from challenge.models import TSXStock, Holding, Transaction, Watchlist, WatchlistItem
-
-from django.utils import timezone
-from django.conf import settings
-from . import utils
-import requests
-import json
 import datetime
+import json
+
+import requests
+from django.conf import settings
+
+from challenge.models import TSXStock, Transaction
+from . import utils
 
 
 def get_market_summary(request):
@@ -135,13 +134,13 @@ def get_quotes(request, symbols):
 #     return combined_list
 
 
-def enrich(request, list):
+def enrich(request, sym_list):
     # Given a list of items (holdings, watchlist, etc), combine the list with quotes retreived
     # from RapidAPI
     #
     combined_list = []
 
-    for item in list:
+    for item in sym_list:
         symbol = TSXStock.objects.get(id=item['symbol_id']).symbol
         quote = utils.get_quotes(request, symbol)
 

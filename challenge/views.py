@@ -3,17 +3,15 @@ import json
 import math
 from decimal import Decimal
 
-from django.db.models import F
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import (TemplateView, ListView, CreateView, UpdateView, )
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from . import forms
 from . import utils
@@ -250,7 +248,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
                 t.quantity = ""
 
         paginator = Paginator(txn_list, 10)
-        page=self.request.GET.get("page")
+        page = self.request.GET.get("page")
         try:
             txn_page = paginator.page(page)
         except PageNotAnInteger:
@@ -259,6 +257,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
             txn_page = paginator.page(paginator.num_pages)
 
         return txn_page
+
 
 @login_required
 def market_quote(request, pk):

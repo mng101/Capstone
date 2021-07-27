@@ -1,12 +1,11 @@
+from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ModelForm
-from django.http import HttpResponse
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django import forms
 
-from .models import Account, Transaction, Watchlist, WatchlistItem, Holding
 from . import utils
+from .models import Account, Transaction, WatchlistItem, Holding
 
 
 class UserCreateForm(UserCreationForm):
