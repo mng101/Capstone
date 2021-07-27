@@ -119,7 +119,7 @@ class WatchlistItem(models.Model):
     def get_absolute_url(self):
         # return reverse("watchlist", kwargs={'pk':self.number_id})
         # return reverse("watchlist", kwargs={'pk':self.number.number})
-        return reverse("watchlist", kwargs={'pk':self.number})
+        return reverse("watchlist", kwargs={'pk': self.number})
 
 
 '''
@@ -132,6 +132,8 @@ TODO - Move the 'create_user_account' function to signals.py file, if time permi
     cash balance. The $250,000 grated to the user on registration is defined in the Account model.
     A set of 5 watchlist are also created, which the user can populate with stocks they wish to track.
 '''
+
+
 @receiver(post_save, sender=User)
 def create_user_account(sender, instance, created, **kwargs):
     if created:
@@ -139,11 +141,10 @@ def create_user_account(sender, instance, created, **kwargs):
         print('Account created')
 
         # Create 5 Watchlists for each User when the User account is created
-        for x in range(1,6):
+        for x in range(1, 6):
             w = Watchlist(user=instance, number=x)
             w.save()
         print('Watchlists created')
-
 
 
 '''
@@ -152,6 +153,8 @@ def create_user_account(sender, instance, created, **kwargs):
     2. Update the cash balance in the Account object
     These 2 updates are managed by the post_save signal from the Transaction model
 '''
+
+
 @receiver(post_save, sender=Transaction)
 def create_update_holding(sender, instance, created, **kwargs):
     print('Holding model received signal')
@@ -160,7 +163,7 @@ def create_update_holding(sender, instance, created, **kwargs):
         try:
             # Create or Update Holding
             holding = Holding.objects.get(user=instance.user, symbol=instance.symbol)
-            if (instance.activity == "B"):
+            if instance.activity == "B":
                 # Adding to existing holding
                 holding.no_of_shares_owned += instance.quantity
                 # holding.total_cost += (instance.quantity * instance.price)
@@ -183,15 +186,15 @@ def create_update_holding(sender, instance, created, **kwargs):
             # Create a new Holding object
             Holding.objects.create(user=instance.user, symbol=instance.symbol,
                                    no_of_shares_owned=instance.quantity,
-                                   total_cost = instance.amount,)
+                                   total_cost=instance.amount,)
         print('Holding Created')
 
         # Update cash balance in Account
         account = Account.objects.get(user=instance.user)
-        if (instance.activity == 'B'):
+        if instance.activity == 'B':
             # account.cash -= (instance.quantity * instance.price)
             account.cash -= instance.amount
-        elif (instance.activity == 'S'):
+        elif instance.activity == 'S':
             # account.cash += (instance.quantity * instance.price)
             account.cash += instance.amount
         else:

@@ -60,7 +60,7 @@ class TransactionForm(ModelForm):
         }
 
         widgets = {
-            'activity': forms.Select(attrs = {'onchange': 'recordActivity(this.value)'})
+            'activity': forms.Select(attrs={'onchange': 'recordActivity(this.value)'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -70,17 +70,17 @@ class TransactionForm(ModelForm):
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')
 
-        if (self.cleaned_data.get('activity') in ('B', 'S')):
-            if (quantity < 1):
+        if self.cleaned_data.get('activity') in ('B', 'S'):
+            if quantity < 1:
                 raise forms.ValidationError("Quantity must be more than 0 for Buy and Sell orders")
-            if (quantity % 10 != 0):
+            if quantity % 10 != 0:
                 raise forms.ValidationError("Quantity must be in multiples of 10")
         return quantity
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
 
-        if (amount <= 0):
+        if amount <= 0:
             raise forms.ValidationError("Transaction amount must be more than 0, for all transactions")
         return amount
 
@@ -92,7 +92,7 @@ class TransactionForm(ModelForm):
         activity = self.cleaned_data.get('activity')
 
         # Verify symbol in Holding list for dividend transactions
-        if (activity == "D"):
+        if activity == "D":
             try:
                 Holding.objects.get(user=self.user, symbol=sym)
                 # If object exists, continue
@@ -101,14 +101,14 @@ class TransactionForm(ModelForm):
                 raise forms.ValidationError("This symbol is not in the Holding list. You cannot receive dividends")
 
         # Verify sufficient cash to cover Buy transaction
-        if (activity == "B"):
+        if activity == "B":
             cash = Account.objects.get(user=self.user).cash
-            if (self.cleaned_data.get('amount') > cash):
+            if self.cleaned_data.get('amount') > cash:
                 raise forms.ValidationError("Insufficient funds to cover this transaction")
 
         # Verifiy Holding count less than 10 for Buy transactions. If equal to 10, Buy is only permitted for
         # symbols already in the Holding list
-        if (Holding.objects.filter(user=self.user).count == 10):
+        if Holding.objects.filter(user=self.user).count == 10:
             try:
                 Holding.objects.filter(user=self.user, symbol=sym)
                 # If object exists, continue
@@ -117,16 +117,16 @@ class TransactionForm(ModelForm):
                 raise forms.ValidationError("This transaction will exceed the maximum number of permitted holdings")
 
         # For sell transactions, verify holding and number of shares
-        if (activity == "S"):
+        if activity == "S":
             try:
                 q = Holding.objects.get(user=self.user, symbol=sym)
-                if (q.no_of_shares_owned < self.cleaned_data.get('quantity')):
+                if q.no_of_shares_owned < self.cleaned_data.get('quantity'):
                     raise forms.ValidationError("Sell quantity exceeds holding. Short selling not supported")
             except ObjectDoesNotExist:
                 raise forms.ValidationError("Symbol not in the holdings. Short selling not supported")
 
         # For Buy and Sell transactions, check less than 10 transactions in the last 10 business days (14 calendar days)
-        if (activity in ("B", "S")):
+        if activity in ("B", "S"):
             txn_count = utils.get_txn_count(self.user, 14)
             if (txn_count >= 10) and (Holding.objects.filter(user=self.user).count >= 7):
                 raise forms.ValidationError("Permitted transaction count exceeded. Try again another day !!")

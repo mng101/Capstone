@@ -5,5 +5,5 @@ class ChallengeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'challenge'
 
-    def ready (self):
+    def ready(self):
         import challenge.signals
