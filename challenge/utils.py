@@ -107,6 +107,7 @@ def get_quotes(request, symbols):
     else:
         return None
 
+
 # def enrich(request, list):
 #     # Given a list of items (holdings, watchlist, etc), combine the list with quotes retreived
 #     # from RapidAPI
@@ -156,15 +157,17 @@ def enrich(request, list):
 
     return combined_list
 
-def single_quote(request, symbol):
-    # Get quote for a single symbol and return the result
-    #
 
-    s1 = []
-    s1.append(symbol)
-    # quote = utils.get_quotes(request, s1)
-    # return quote
-    return none
+# def single_quote(request, symbol):
+#     # Get quote for a single symbol and return the result
+#     #
+#
+#     # s1 = []
+#     # s1.append(symbol)
+#     s1 = [symbol]
+#     quote = utils.get_quotes(request, s1)
+#     return quote
+
 
 def get_txn_count(user, interval):
     # Get the number of Buy and Sell transactions for the user during the time interval
@@ -174,7 +177,6 @@ def get_txn_count(user, interval):
     start_date = today - datetime.timedelta(days=interval)
     end_date = today + datetime.timedelta(days=1)
     txn_count = Transaction.objects.filter(user=user,
-                                           txn_date__range=(start_date, end_date))\
-                                           .exclude (activity="D")\
-                                           .count()
+                                           txn_date__range=(start_date, end_date)) \
+        .exclude(activity="D").count()
     return txn_count

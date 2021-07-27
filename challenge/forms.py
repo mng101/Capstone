@@ -144,11 +144,11 @@ class WatchlistItemForm(ModelForm):
         }
 
     def clean_symbol(self):
-        symbol = self.cleaned_data.get('symbol')
+        sym_to_add = self.cleaned_data.get('symbol')
         try:
             w1 = WatchlistItem.objects.get(user=self.initial['user_id'],
                                            number=self.initial['number_id'],
-                                           symbol=cleaned_data.pk)
+                                           symbol=sym_to_add)
         except WatchlistItem.DoesNotExist:
             w1 = None
             print("Object does not exist")
@@ -157,7 +157,7 @@ class WatchlistItemForm(ModelForm):
         if w1 is not None:
             raise forms.ValidationError("Duplicate Symbol in Watchlist")
         # else:
-        return symbol
+        return sym_to_add
 
     def clean(self):
         # Check less than 10 items in the watchlist

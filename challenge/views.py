@@ -153,7 +153,8 @@ class WatchlistView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user_id = self.request.user.id
         form.instance.number = self.kwargs['pk']
-        symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
+        # symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
+        symbol_quote = utils.get_quotes(self.request, form.instance.symbol.symbol)
 
         if len(symbol_quote['result']) > 0:
             form.instance.price_when_added = ((Decimal(symbol_quote['result'][0]['bid']) +
