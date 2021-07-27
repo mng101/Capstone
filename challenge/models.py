@@ -47,7 +47,7 @@ class TSXStock(models.Model):
 class Holding(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name='holdings')
     symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=64)
+    # company_name = models.CharField(max_length=64)
     no_of_shares_owned = models.IntegerField(default=0)
     # no_of_shared_owned is totaled from all the trades for this security
     total_cost = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
@@ -57,7 +57,7 @@ class Holding(models.Model):
         ordering = ["symbol"]
 
     def __str__(self):
-        return f"{self.symbol} - {self.company_name} - {self.no_of_shares_owned} - {self.total_cost}"
+        return f"{self.symbol} - {self.no_of_shares_owned} - {self.total_cost}"
 
 
 # The Transaction model will hold the trades executed by the User. Trades will be settled immediately at the mid
@@ -74,7 +74,8 @@ class Transaction (models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="transactions")
     symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE)
     activity = models.CharField(max_length=1, choices=ACTIVITIES)
-    quantity = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0,
+                                   help_text="Enter quantity in multiples of <b>10</b>")
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     # txn_date = models.DateField(auto_now_add=True)
     txn_date = models.DateField()
@@ -157,20 +158,23 @@ def create_update_holding(sender, instance, created, **kwargs):
     if created:
         try:
             # Create or Update Holding
-            holding = Holding.objects.get(symbol=instance.symbol)
+            holding = Holding.objects.get(user=instance.user, symbol=instance.symbol)
             if (instance.activity == "B"):
                 # Adding to existing holding
                 holding.no_of_shares_owned += instance.quantity
-                holding.total_cost += (instance.quantity * instance.price)
+                # holding.total_cost += (instance.quantity * instance.price)
+                holding.total_cost += instance.amount
             else:
                 # If not buying, selling is assumed, for manually entered trades.
                 # Reducing existing holding. Quantity sold is less than or equal to the no_of_shares_owned is
                 # previously confirmed during trade entry
+                # If the transaction reduces the quantity to 0, the holding is not deleted. Holdings with 0 quantity
+                # are excluded in the TransactionListView
                 holding.no_of_shares_owned -= instance.quantity
                 # If the no_of_shares_owned are all sold, the total_cost is not relevant. A positive total_cost
-                # implies a trade profit, else the trade loss
-                holding.total_cost -= (instance.quantity * instance.price)
-
+                # implies a trade profit, else the trade loss.
+                # holding.total_cost -= (instance.quantity * instance.price)
+                holding.total_cost -= instance.amount
 
             holding.save()
 
@@ -178,17 +182,19 @@ def create_update_holding(sender, instance, created, **kwargs):
             # Create a new Holding object
             Holding.objects.create(user=instance.user, symbol=instance.symbol,
                                    no_of_shares_owned=instance.quantity,
-                                   total_cost = (instance.quantity * instance.price))
-        print('Holding Update')
+                                   total_cost = instance.amount,)
+        print('Holding Created')
 
         # Update cash balance in Account
         account = Account.objects.get(user=instance.user)
         if (instance.activity == 'B'):
-            account.cash -= (instance.quantity * instance.price)
+            # account.cash -= (instance.quantity * instance.price)
+            account.cash -= instance.amount
         elif (instance.activity == 'S'):
-            account.cash += (instance.quantity * instance.price)
+            # account.cash += (instance.quantity * instance.price)
+            account.cash += instance.amount
         else:
             account.cash += instance.amount
 
         account.save()
-        print('Account Update')
+        print('Account Updated')

@@ -13,14 +13,18 @@
     <h3><span style="color: #33cccc;"><strong>The Rules:</strong></span></h3>
     <div class="intro">
         <ol>
-            <li>Registration is free. <u>A Credit Card is NOT required</u></li>
+            <li>Registration is free. Credit Card is NOT required</li>
             <li>Upon registration, your account will have a notional credit of <u>CAD $250,000</u>&nbsp;that you can apply to the stock trades</li>
-            <li>Your portfolio can hold a maximum of <b>10</b> securities</li>
-            <li>Trades are filled internally at the mid point between the <b>Bid</b> and <b>Ask</b> quotes for the security being traded. Hence, trades can be executed all day, every day, with no dependency on the Trading hours of the Stock Market.</li>
+            <li>Your portfolio can hold a maximum of 10 securities</li>
+            <li>Trades are filled internally at the mid point between the Bid and Ask quotes for the security being traded. Hence, trades can be executed all day, every day, with no dependency on the Trading hours of the Stock Market.</li>
             <li>Please note, outside of the regular market hours, the posted Bid and Ask can be unrealistic, adversely impacting the value of your trades.</li>
-            <li>To avoid Portfolio churn, participants are <u>limited to 10 trades in any 5 day interval</u>. This limit is also required to confirm to the maximum number of requests permitted by the API service provider.</li>
-            <li>Users are permitted to create a maximum of <b>5</b> Watchlists, each holding <b>10</b> symbols. The Watchlists can be used to monitor the price movement of the Stock, before committing to a trade.</li>
+            <li>To avoid Portfolio churn, participants are limited to 5 trades in any 10 day interval. This limit is also required to confirm to the maximum number of requests permitted by the Stock Quote API service provider.</li>
+            <li>An exception to the above rule is when the portfolio holds less than 5 securities. In that case, participants are permitted a maximum of 10 trades in any 10 day interval. This exception will allow participants for be fully invested within a few days of registration.</li>
+            <li>Users are assigned 5 Watchlists, to monitor the price movement of Stocks of interest. Each Watchlist can hold a maximum of <b>10</b> symbols.</li>
+            <li>The game site does not automatically process periodic dividend and interest payments. These have to be manually submitted by the participants. Dividend transactions will be audited by Admin. Submitting invalid dividend transactions will disqualify the participant</li>
+            <li>The game site also does not support Corporate Actions, such as stock splits, consolidations, name and symbol change, etc. Participants can request Admin assistance to complete these actions</li>
         </ol>
+
     </div>
 
 {% endblock %}

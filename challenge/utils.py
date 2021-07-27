@@ -162,8 +162,9 @@ def single_quote(request, symbol):
 
     s1 = []
     s1.append(symbol)
-    quote = utils.get_quotes(request, s1)
-    return quote
+    # quote = utils.get_quotes(request, s1)
+    # return quote
+    return none
 
 def get_txn_count(user, interval):
     # Get the number of Buy and Sell transactions for the user during the time interval

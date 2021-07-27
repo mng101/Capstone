@@ -5,11 +5,14 @@
 
 {% block content %}
 
+    {% bootstrap_pagination txn_history url="/history?page=1" size="medium"%}
+    <hr>
+
     <div class="container">
        <h4>Transaction History</h4>
 
         <div class="row portfolio-header-row gx-2">
-            <div class="col-md-2" >Stock Symbol</div>
+            <div class="col-md-3" >Stock Symbol</div>
             <div class="col-md-1 text-end">Txn Date</div>
             <div class="col-md-1 text-end">Activity</div>
             <div class="col-md-1 text-end">Price</div>
@@ -20,10 +23,16 @@
         {% if txn_history %}
             {%  for entry in txn_history %}
                 <div class="row portfolio-holding-row gx-2">
-                    <div class="col-md-2">{{ entry.symbol }}</div>
+                    <div class="col-md-3">{{ entry.symbol }}</div>
                     <div class="col-md-1 text-end">{{ entry.txn_date|date:'d-m-y' }}</div>
                     <div class="col-md-1 text-end">{{ entry.get_activity_display }}</div>
-                    <div class="col-md-1 text-end">{{ entry.price|currency }}</div>
+                    {# If this is a dividend transaction skip the currency filter for the price field #}
+                    {# The currency filter will cause a null string "" to be displayed as $0.00 #}
+                    {% if entry.activity == "D" %}
+                        <div class="col-md-1 text-end">{{ entry.price }}</div>
+                    {% else %}
+                        <div class="col-md-1 text-end">{{ entry.price|currency }}</div>
+                    {% endif %}
                     <div class="col-md-1 text-end">{{ entry.quantity }}</div>
 {#                    <div class="col-md-2 text-end">{{ entry.value|currency }}</div>#}
                     <div class="col-md-2 text-end">{{ entry.amount|currency }}</div>

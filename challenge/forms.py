@@ -71,9 +71,11 @@ class TransactionForm(ModelForm):
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')
 
-        if (self.cleaned_data.get('activity') in ('B', 'S')) \
-            and (quantity < 1):
-            raise forms.ValidationError("Quantity must be more than 0 for Buy and Sell orders")
+        if (self.cleaned_data.get('activity') in ('B', 'S')):
+            if (quantity < 1):
+                raise forms.ValidationError("Quantity must be more than 0 for Buy and Sell orders")
+            if (quantity % 10 != 0):
+                raise forms.ValidationError("Quantity must be in multiples of 10")
         return quantity
 
     def clean_amount(self):

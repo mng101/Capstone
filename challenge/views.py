@@ -13,6 +13,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import (TemplateView, ListView, CreateView, UpdateView, )
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 from . import forms
 from . import utils
 from .forms import AccountForm, TransactionForm, WatchlistItemForm
@@ -64,9 +66,10 @@ class HoldingListView(ListView):
     template_name = 'challenge/dashboard.html'
 
     def get_queryset(self):
-        # Get the list of Portfolio Holdings and append with quotes from RapidAPI
+        # Get the list of Portfolio Holdings, ignoring holdings where the no_of_shares_owned is 0. Append  each object
+        # with quotes from RapidAPI
         #
-        holdings = Holding.objects.filter(user=self.request.user).values()
+        holdings = Holding.objects.filter(user=self.request.user).exclude(no_of_shares_owned=0).values()
 
         combined_list = utils.enrich(self.request, holdings)
 
@@ -194,7 +197,7 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
 
     def get_form_kwargs(self):
-        kwargs = super(TransactionCreateView, self).get_form_kwargs()
+        # kwargs = super(TransactionCreateView, self).get_form_kwargs()
         kwargs = super(TransactionCreateView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user})
         return kwargs
@@ -224,12 +227,37 @@ class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
     login_url = 'login'
     context_object_name = "txn_history"
+    template_name = "challenge/transaction_list.html"
+
+    # def get_queryset(self):
+    #     # Get the list of transactions for the User
+    #     # s1 = Transaction.objects.filter(user=self.request.user).annotate(value=F('price') * F('quantity'))
+    #     tlist = Transaction.objects.filter(user=self.request.user)
+    #     for t in tlist:
+    #         if t.activity == "D":
+    #             t.price = ""
+    #             t.quantity = ""
+    #     return tlist
 
     def get_queryset(self):
         # Get the list of transactions for the User
-        s1 = Transaction.objects.filter(user=self.request.user).annotate(value=F('price') * F('quantity'))
-        return s1
+        # s1 = Transaction.objects.filter(user=self.request.user).annotate(value=F('price') * F('quantity'))
+        txn_list = Transaction.objects.filter(user=self.request.user)
+        for t in txn_list:
+            if t.activity == "D":
+                t.price = ""
+                t.quantity = ""
 
+        paginator = Paginator(txn_list, 10)
+        page=self.request.GET.get("page")
+        try:
+            txn_page = paginator.page(page)
+        except PageNotAnInteger:
+            txn_page = paginator.page(1)
+        except EmptyPage:
+            txn_page = paginator.page(paginator.num_pages)
+
+        return txn_page
 
 @login_required
 def market_quote(request, pk):
