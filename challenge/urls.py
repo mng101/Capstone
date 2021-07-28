@@ -28,13 +28,11 @@ urlpatterns = [
     path("dashboard/", views.HoldingListView.as_view(), name="dashboard"),
     path("thanks/", views.ThanksPageView.as_view(), name="thanks"),
     path("contact/<int:pk>", views.AccountUpdateView.as_view(), name="contact"),
-    #
-    # TODO - The int parameter in the call to watchlist is not a primary key. Change to 'number'
-    #
-    path("watchlist/<int:pk>", views.WatchlistView.as_view(), name="watchlist"),
+    path("watchlist/<int:num>", views.WatchlistView.as_view(), name="watchlist"),
     path("transaction/", views.TransactionCreateView.as_view(), name="transaction"),
     path("history/", views.TransactionListView.as_view(), name="history"),
     path("updatetitle/<int:pk>", views.updatetitle, name="updatetitle"),
     path("market_quote/<int:pk>", views.market_quote, name="market_quote"),
+    path("remove_watchlist_item/<int:pk>", views.remove_watchlist_item, name="remove_watchlist_item"),
     # path("test/", views.TestPageView.as_view(), name="test"),
 ]

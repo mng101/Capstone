@@ -117,17 +117,17 @@ class WatchlistView(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         print("Get Initial")
-        return {'number_id': self.kwargs['pk'],
+        return {'number_id': self.kwargs['num'],
                 'user_id': self.request.user.id, }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["watchlist"] = Watchlist.objects.get(user=self.request.user, number=self.kwargs['pk'])
+        context["watchlist"] = Watchlist.objects.get(user=self.request.user, number=self.kwargs['num'])
         context['watchlistitem_form'] = WatchlistItemForm()
 
         # Get the items in the Watchlist formatted as a list of dictionaries
         watchlist_items = WatchlistItem.objects.filter(user=self.request.user,
-                                                       number=self.kwargs['pk']).values()
+                                                       number=self.kwargs['num']).values()
         # Merge Watchlist Items with RapidAPI Quotes
         combined_list = utils.enrich(self.request, watchlist_items)
 
@@ -150,7 +150,7 @@ class WatchlistView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user_id = self.request.user.id
-        form.instance.number = self.kwargs['pk']
+        form.instance.number = self.kwargs['num']
         # symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
         symbol_quote = utils.get_quotes(self.request, form.instance.symbol.symbol)
 
@@ -279,3 +279,14 @@ def market_quote(request, pk):
         return JsonResponse({
             "error": "GET request required"
         }, status=400)
+
+
+@login_required
+def remove_watchlist_item(request, **kwargs):
+    try:
+        item = WatchlistItem.objects.get(user=request.user, id=kwargs['pk'])
+        item.delete()
+    except:
+        raise Http404("Watchlist Item does not exist")
+
+    return

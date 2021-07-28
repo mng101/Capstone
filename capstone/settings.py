@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-#5tv1f!8i#oqp@x2)-7$_m3d+xc%2k+=4=z#!!ry%9xz+#p!eo'
 
-# Import RADID API key from local_settings.py
+# Import Rapid API key from local_settings.py
 try:
     from .local_settings import *
 except ImportError:
@@ -130,7 +130,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# TODO - Change the following URLs to the final HTML pages
+# Login and Logout URLs
 #
 LOGIN_REDIRECT_URL = 'markets'
 LOGOUT_REDIRECT_URL = 'thanks'

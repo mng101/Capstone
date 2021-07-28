@@ -39,11 +39,11 @@ class TSXStock(models.Model):
         return f"{self.symbol} - {self.name}"
 
 
-# TODO - Strictly speaking, the Holding model should not be required. It is possible to derive the list of
-#        holdings from the transactions. This will mean more coding and slower processing. Will leave this
-#        decision ot a later date.
-#        For a start, both the Transaction, and Holding models will be updated with relevant values for each
-#        Trade excuted
+# Strictly speaking, the Holding model should not be required. It is possible to derive the list of
+# holdings from the transactions. This will mean more coding and slower processing. Will leave this
+# decision ot a later date.
+# For a start, both the Transaction, and Holding models will be updated with relevant values for each
+# Trade excuted
 
 class Holding(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name='holdings')

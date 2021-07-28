@@ -37,6 +37,7 @@
             <div class="col-md-1 text-end">Price Change</div>
             <div class="col-md-2 text-end">52w Range</div>
             <div class="col-md-2 text-end">Target Price</div>
+            <div class="col-md-1 text-center">Remove</div>
         </div>
 {##}
         {% if watchlist_items %}
@@ -51,6 +52,9 @@
                     <div class="col-md-2 text-end">{{ item.fiftyTwoWeekRange }}</div>
                     <div class="col-md-1 text-end">{{ item.targetPriceLow|currency }}<br>(Low)</div>
                     <div class="col-md-1 text-end">{{ item.targetPriceHigh|currency }}<br>(High)</div>
+                    <div class="col-md-1 text-center">
+                        <a href="{% url 'remove_watchlist_item' item.id %}"
+                           title="Remove"><b>X</b></a></div>
 
                 </div>
             {% endfor %}
