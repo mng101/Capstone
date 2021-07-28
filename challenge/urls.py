@@ -34,5 +34,4 @@ urlpatterns = [
     path("updatetitle/<int:pk>", views.updatetitle, name="updatetitle"),
     path("market_quote/<int:pk>", views.market_quote, name="market_quote"),
     path("remove_watchlist_item/<int:pk>", views.remove_watchlist_item, name="remove_watchlist_item"),
-    # path("test/", views.TestPageView.as_view(), name="test"),
 ]

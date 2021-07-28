@@ -6,6 +6,8 @@ from django.urls import reverse
 
 
 # Create your models here.
+
+
 class User(AbstractUser):
     pass
 
@@ -103,11 +105,9 @@ class Watchlist(models.Model):
 
 class WatchlistItem(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
-    # number = models.ForeignKey("Watchlist", on_delete=models.CASCADE)
     number = models.IntegerField(null=False)
     symbol = models.ForeignKey("TSXStock", on_delete=models.CASCADE, related_name="watchlistitems")
-    # date_added = models.DateField(auto_now_add=True)
-    date_added = models.DateField()
+    date_added = models.DateField(auto_now_add=True)
     price_when_added = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
 
     class Meta:
@@ -117,22 +117,12 @@ class WatchlistItem(models.Model):
         return f"{self.user} WL# {self.number} - {self.symbol}"
 
     def get_absolute_url(self):
-        # return reverse("watchlist", kwargs={'pk':self.number_id})
-        # return reverse("watchlist", kwargs={'pk':self.number.number})
         return reverse("watchlist", kwargs={'pk': self.number})
 
 
-'''
-TODO - Move the 'create_user_account' function to signals.py file, if time permits.
-       The code failed during initial testing in signals.py file
-'''
-
-'''
-    When a user registers at the site, an Account is automatically created to track contact details, and the
-    cash balance. The $250,000 grated to the user on registration is defined in the Account model.
-    A set of 5 watchlist are also created, which the user can populate with stocks they wish to track.
-'''
-
+# When a user registers at the site, an Account is automatically created to track contact details, and the
+# cash balance. The $250,000 grated to the user on registration is defined in the Account model.
+# A set of 5 watchlist are also created, which the user can populate with stocks they wish to track.
 
 @receiver(post_save, sender=User)
 def create_user_account(sender, instance, created, **kwargs):
@@ -147,13 +137,10 @@ def create_user_account(sender, instance, created, **kwargs):
         print('Watchlists created')
 
 
-'''
-    Every trade submitted, requires 2 additional updates.
-    1. Create a new Holding object, or update if one for the same security exists
-    2. Update the cash balance in the Account object
-    These 2 updates are managed by the post_save signal from the Transaction model
-'''
-
+# Every trade submitted, requires 2 additional updates.
+# 1. Create a new Holding object, or update if one for the same security exists
+# 2. Update the cash balance in the Account object
+# These 2 updates are managed by the post_save signal from the Transaction model
 
 @receiver(post_save, sender=Transaction)
 def create_update_holding(sender, instance, created, **kwargs):

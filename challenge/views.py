@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -186,8 +186,6 @@ def updatetitle(request, pk):
     return JsonResponse({"message": "Update successful"}, status=200)
 
 
-# TODO - WatchlistItemDeleteView
-
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
     form_class = TransactionForm
@@ -227,16 +225,6 @@ class TransactionListView(LoginRequiredMixin, ListView):
     login_url = 'login'
     context_object_name = "txn_history"
     template_name = "challenge/transaction_list.html"
-
-    # def get_queryset(self):
-    #     # Get the list of transactions for the User
-    #     # s1 = Transaction.objects.filter(user=self.request.user).annotate(value=F('price') * F('quantity'))
-    #     tlist = Transaction.objects.filter(user=self.request.user)
-    #     for t in tlist:
-    #         if t.activity == "D":
-    #             t.price = ""
-    #             t.quantity = ""
-    #     return tlist
 
     def get_queryset(self):
         # Get the list of transactions for the User
@@ -286,7 +274,7 @@ def remove_watchlist_item(request, **kwargs):
     try:
         item = WatchlistItem.objects.get(user=request.user, id=kwargs['pk'])
         item.delete()
-    except:
+    except WatchlistItem.DoesNotExist:
         raise Http404("Watchlist Item does not exist")
 
-    return
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -31,15 +31,6 @@ class AccountForm(ModelForm):
             "middle_name": "Middle Name",
             "last_name": "Last Name",
         }
-        # widgets = {
-        #     'user': setattr(
-        # }
-
-        # def clean_first_name(self):
-        #     cleaned_data = self.cleaned_data.get('first_name')
-        #     # Explicit account.save() is not required
-        #     # account.save()
-        #     return cleaned_data
 
 
 class TransactionForm(ModelForm):
@@ -108,9 +99,9 @@ class TransactionForm(ModelForm):
 
         # Verifiy Holding count less than 10 for Buy transactions. If equal to 10, Buy is only permitted for
         # symbols already in the Holding list
-        if Holding.objects.filter(user=self.user).count == 10:
+        if Holding.objects.filter(user=self.user).exclude(no_of_shares_owned=0).count() == 10:
             try:
-                Holding.objects.filter(user=self.user, symbol=sym)
+                Holding.objects.get(user=self.user, symbol=sym)
                 # If object exists, continue
                 pass
             except ObjectDoesNotExist:
@@ -155,7 +146,7 @@ class WatchlistItemForm(ModelForm):
 
         if w1 is not None:
             raise forms.ValidationError("Duplicate Symbol in Watchlist")
-        # else:
+
         return sym_to_add
 
     def clean(self):
