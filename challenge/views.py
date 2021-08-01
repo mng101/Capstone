@@ -100,7 +100,11 @@ class HoldingListView(ListView):
         investments = 0
         if context['object_list'] is not None:
             for h in context['object_list']:
-                investments += (h['no_of_shares_owned'] * h['bid'])
+                try:
+                    investments += (h['no_of_shares_owned'] * h['bid'])
+                except KeyError:
+                    pass
+                    # Error indicating missing quote data is reported in 'get_queryset'
         context["investments"] = investments
         context["portfolio_total"] = (context["account"].cash + Decimal(investments))
         context["txn_count"] = utils.get_txn_count(self.request.user, 14)
@@ -151,7 +155,6 @@ class WatchlistView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user_id = self.request.user.id
         form.instance.number = self.kwargs['num']
-        # symbol_quote = utils.single_quote(self.request, form.instance.symbol.symbol)
         symbol_quote = utils.get_quotes(self.request, form.instance.symbol.symbol)
 
         if len(symbol_quote['result']) > 0:
@@ -194,7 +197,6 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'
 
     def get_form_kwargs(self):
-        # kwargs = super(TransactionCreateView, self).get_form_kwargs()
         kwargs = super(TransactionCreateView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user})
         return kwargs
@@ -207,8 +209,6 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        # form.instance.user_id = self.request.user
-        # self.object = form.save(commit=False)
         form.instance.user = self.request.user
         form.instance.txn_date = datetime.date.today()
         form.instance.valid = True

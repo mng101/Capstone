@@ -118,6 +118,8 @@ class TransactionForm(ModelForm):
 
         # For Buy and Sell transactions, check less than 10 transactions in the last 10 business days (14 calendar days)
         if activity in ("B", "S"):
+            # Get the transaction count for the last 14 days which translates to 10 business days, if we ignore
+            # public holidays
             txn_count = utils.get_txn_count(self.user, 14)
             if (txn_count >= 10) and (Holding.objects.filter(user=self.user).count >= 7):
                 raise forms.ValidationError("Permitted transaction count exceeded. Try again another day !!")

@@ -23,7 +23,7 @@
         {% if txn_history %}
             {%  for entry in txn_history %}
                 <div class="row portfolio-holding-row gx-2">
-                    <div class="col-md-3">{{ entry.symbol }}</div>
+                    <div class="col-md-3">{{ entry.symbol.symbol }}<br>{{ entry.symbol.name }}</div>
                     <div class="col-md-1 text-end">{{ entry.txn_date|date:'d-m-y' }}</div>
                     <div class="col-md-1 text-end">{{ entry.get_activity_display }}</div>
                     {# If this is a dividend transaction skip the currency filter for the price field #}
@@ -34,7 +34,6 @@
                         <div class="col-md-1 text-end">{{ entry.price|currency }}</div>
                     {% endif %}
                     <div class="col-md-1 text-end">{{ entry.quantity }}</div>
-{#                    <div class="col-md-2 text-end">{{ entry.value|currency }}</div>#}
                     <div class="col-md-2 text-end">{{ entry.amount|currency }}</div>
                 </div>
             {% endfor %}

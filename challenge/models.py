@@ -80,8 +80,7 @@ class Transaction (models.Model):
     quantity = models.IntegerField(default=0,
                                    help_text="Enter quantity in multiples of <b>10</b>")
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
-    # txn_date = models.DateField(auto_now_add=True)
-    txn_date = models.DateField()
+    txn_date = models.DateField(auto_now_add=True)
     #
     # The amount field is required to capture dividend transactions where both the price and quantity
     # fields are '0'
@@ -117,7 +116,7 @@ class WatchlistItem(models.Model):
         return f"{self.user} WL# {self.number} - {self.symbol}"
 
     def get_absolute_url(self):
-        return reverse("watchlist", kwargs={'pk': self.number})
+        return reverse("watchlist", kwargs={'num': self.number})
 
 
 # When a user registers at the site, an Account is automatically created to track contact details, and the

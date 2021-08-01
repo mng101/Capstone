@@ -86,12 +86,14 @@ def enrich(request, sym_list):
         quote = utils.get_quotes(request, symbol)
 
         c = item.copy()
-        try:
-            c.update(quote['result'][0])
-        except IndexError:
-            # Quote could not be retreived for this symbol. The price change since the symbol was added
-            # to the Watchlist will not be displayed
-            pass
+
+        if quote is not None:
+            try:
+                c.update(quote['result'][0])
+            except IndexError:
+                # Quote could not be retreived for this symbol. The price change since the symbol was added
+                # to the Watchlist will not be displayed
+                pass
 
         combined_list.append(c)
 
