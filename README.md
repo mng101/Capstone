@@ -25,11 +25,17 @@ Following are some of the features of the site:
 
 
 The Models that support the web Site are:
+
   Account - Users Name and Address and Cash Balance
+  
   TSXStock - Symbol and Company Name of the Securities permitted for trading
+  
   Holding - Details on the shares owned by the user
+  
   Transaction - Details of the Transactions executed by the user
+  
   Watchlist - Watchlist Id and Title for the 5 Watchlists automatically created for each user
+  
   WatchlistItem - Details of the Symbols listed under each Watchlist for the user
   
 The ‘signal dispatcher’ is used to complete creation of a User account, and to update the Holdings when a transaction is submitted.
