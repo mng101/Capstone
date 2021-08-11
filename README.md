@@ -77,3 +77,4 @@ Sqlite database with sample data is included in the repository. Migration is not
 Superuser credentials:      username: _admin_     password: _admin_
 
 Sample user credentials:    username: _roger_     password: _mypwd101_
+
